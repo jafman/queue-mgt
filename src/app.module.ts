@@ -4,6 +4,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -12,13 +13,13 @@ import { AppService } from './app.service';
       envFilePath: '.env',
     }),
     ThrottlerModule.forRoot([{
-      ttl: parseInt(process.env.THROTTLE_TTL) || 60,
-      limit: parseInt(process.env.THROTTLE_LIMIT) || 10,
+      ttl: parseInt(process.env.THROTTLE_TTL ?? '60'),
+      limit: parseInt(process.env.THROTTLE_LIMIT ?? '10'),
     }]),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
+        type: 'mysql',
         host: configService.get('DB_HOST'),
         port: configService.get('DB_PORT'),
         username: configService.get('DB_USERNAME'),
@@ -26,9 +27,18 @@ import { AppService } from './app.service';
         database: configService.get('DB_DATABASE'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get('NODE_ENV') === 'development',
+        charset: 'utf8mb4',
+        timezone: 'Z',
+        extra: {
+          connectionLimit: 1,
+          idleTimeout: 30000,
+          connectTimeout: 2000,
+        },
+        logging: false,
       }),
       inject: [ConfigService],
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

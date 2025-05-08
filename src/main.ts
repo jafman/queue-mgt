@@ -24,10 +24,35 @@ async function bootstrap() {
     .setTitle('Queue Management API')
     .setDescription('API documentation for Queue Management System')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addTag('Authentication', 'User authentication endpoints')
+    .addTag('Vendors', 'Vendor management endpoints')
+    .addTag('Students', 'Student management endpoints')
+    .addTag('Admins', 'Admin management endpoints')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+      docExpansion: 'none',
+      filter: true,
+      showExtensions: true,
+      showCommonExtensions: true,
+    },
+  });
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
