@@ -1,6 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Role } from '../enums/role.enum';
+import { Admin } from '../../modules/users/entities/admin.entity';
+import { Student } from '../../modules/users/entities/student.entity';
+import { Vendor } from '../../modules/users/entities/vendor.entity';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +25,23 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { username: user.username, sub: user.id };
+    // Determine the role based on the user type
+    let role: Role;
+    if (user instanceof Admin) {
+      role = Role.ADMIN;
+    } else if (user instanceof Student) {
+      role = Role.STUDENT;
+    } else if (user instanceof Vendor) {
+      role = Role.VENDOR;
+    } else {
+      throw new UnauthorizedException('Invalid user type');
+    }
+
+    const payload = { 
+      username: user.username, 
+      sub: user.id,
+      role: role
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };

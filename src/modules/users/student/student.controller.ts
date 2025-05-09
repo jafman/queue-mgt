@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Get, UseGuards, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiQuery, ApiSecurity } from '@nestjs/swagger';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from '../dto/create-student.dto';
 import { StudentResponseDto } from '../dto/student-response.dto';
@@ -60,10 +60,11 @@ export class StudentController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
+  @ApiSecurity('JWT-auth')
   @ApiOperation({ 
     summary: 'Get all students',
-    description: 'Retrieves a paginated list of all students. Only accessible by admin users.'
+    description: 'Retrieves a paginated list of all students. Requires JWT authentication and admin role. Include the JWT token in the Authorization header as: Bearer <token>'
   })
   @ApiQuery({
     name: 'page',
@@ -86,11 +87,25 @@ export class StudentController {
   })
   @ApiResponse({ 
     status: 401, 
-    description: 'Unauthorized - Invalid or missing JWT token' 
+    description: 'Unauthorized - Invalid or missing JWT token',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Invalid or missing JWT token'
+      }
+    }
   })
   @ApiResponse({ 
     status: 403, 
-    description: 'Forbidden - Admin access required' 
+    description: 'Forbidden - Admin access required',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Forbidden resource',
+        error: 'Admin role required'
+      }
+    }
   })
   async findAll(
     @Query() paginationDto: PaginationDto,
