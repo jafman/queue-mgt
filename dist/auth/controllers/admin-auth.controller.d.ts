@@ -7,5 +7,6 @@ export declare class AdminAuthController {
     constructor(authService: AuthService, adminService: AdminService);
     login(loginDto: LoginDto): Promise<{
         access_token: string;
+        user: any;
     }>;
 }

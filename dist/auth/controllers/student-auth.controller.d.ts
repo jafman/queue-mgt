@@ -7,5 +7,6 @@ export declare class StudentAuthController {
     constructor(authService: AuthService, studentService: StudentService);
     login(loginDto: LoginDto): Promise<{
         access_token: string;
+        user: any;
     }>;
 }

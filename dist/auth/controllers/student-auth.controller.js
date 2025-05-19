@@ -37,18 +37,72 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Student login with username or email' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
-        description: 'Returns JWT token on successful login',
+        description: 'Returns JWT token and student data on successful login',
         schema: {
             type: 'object',
             properties: {
                 access_token: {
                     type: 'string',
                     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                },
+                user: {
+                    type: 'object',
+                    properties: {
+                        id: {
+                            type: 'string',
+                            example: '123e4567-e89b-12d3-a456-426614174000'
+                        },
+                        username: {
+                            type: 'string',
+                            example: 'john.doe2023'
+                        },
+                        email: {
+                            type: 'string',
+                            example: 'john.doe@university.edu'
+                        },
+                        firstName: {
+                            type: 'string',
+                            example: 'John'
+                        },
+                        lastName: {
+                            type: 'string',
+                            example: 'Doe'
+                        },
+                        studentId: {
+                            type: 'string',
+                            example: 'STU2023001'
+                        },
+                        role: {
+                            type: 'string',
+                            example: 'student',
+                            enum: ['student', 'vendor', 'admin']
+                        },
+                        createdAt: {
+                            type: 'string',
+                            format: 'date-time',
+                            example: '2024-03-19T12:00:00Z'
+                        },
+                        updatedAt: {
+                            type: 'string',
+                            format: 'date-time',
+                            example: '2024-03-19T12:00:00Z'
+                        }
+                    }
                 }
             }
         }
     }),
-    (0, swagger_1.ApiResponse)({ status: 401, description: 'Invalid credentials' }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Invalid credentials',
+        schema: {
+            example: {
+                statusCode: 401,
+                message: 'Invalid credentials',
+                error: 'Unauthorized'
+            }
+        }
+    }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),

@@ -42,8 +42,16 @@ export class AuthService {
       sub: user.id,
       role: role
     };
+
+    // Remove sensitive data from user object
+    const { password, ...userData } = user;
+
     return {
       access_token: this.jwtService.sign(payload),
+      user: {
+        ...userData,
+        role: role
+      }
     };
   }
 } 

@@ -5,5 +5,6 @@ export declare class AuthService {
     validateUser(username: string, password: string, user: any): Promise<any>;
     login(user: any, userType: string): Promise<{
         access_token: string;
+        user: any;
     }>;
 }

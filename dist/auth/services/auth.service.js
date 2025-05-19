@@ -49,8 +49,13 @@ let AuthService = class AuthService {
             sub: user.id,
             role: role
         };
+        const { password, ...userData } = user;
         return {
             access_token: this.jwtService.sign(payload),
+            user: {
+                ...userData,
+                role: role
+            }
         };
     }
 };

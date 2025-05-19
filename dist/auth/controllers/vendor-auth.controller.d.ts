@@ -7,5 +7,6 @@ export declare class VendorAuthController {
     constructor(authService: AuthService, vendorService: VendorService);
     login(loginDto: LoginDto): Promise<{
         access_token: string;
+        user: any;
     }>;
 }

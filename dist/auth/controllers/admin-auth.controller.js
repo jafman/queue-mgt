@@ -40,13 +40,53 @@ __decorate([
     }),
     (0, swagger_1.ApiResponse)({
         status: 200,
-        description: 'Returns JWT token on successful login',
+        description: 'Returns JWT token and admin data on successful login',
         schema: {
             type: 'object',
             properties: {
                 access_token: {
                     type: 'string',
                     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                },
+                user: {
+                    type: 'object',
+                    properties: {
+                        id: {
+                            type: 'string',
+                            example: '123e4567-e89b-12d3-a456-426614174000'
+                        },
+                        username: {
+                            type: 'string',
+                            example: 'admin1'
+                        },
+                        email: {
+                            type: 'string',
+                            example: 'admin@university.edu'
+                        },
+                        firstName: {
+                            type: 'string',
+                            example: 'Admin'
+                        },
+                        lastName: {
+                            type: 'string',
+                            example: 'User'
+                        },
+                        role: {
+                            type: 'string',
+                            example: 'admin',
+                            enum: ['student', 'vendor', 'admin']
+                        },
+                        createdAt: {
+                            type: 'string',
+                            format: 'date-time',
+                            example: '2024-03-19T12:00:00Z'
+                        },
+                        updatedAt: {
+                            type: 'string',
+                            format: 'date-time',
+                            example: '2024-03-19T12:00:00Z'
+                        }
+                    }
                 }
             }
         }

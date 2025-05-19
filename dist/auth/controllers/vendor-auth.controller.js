@@ -37,13 +37,49 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Vendor login' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
-        description: 'Returns JWT token on successful login',
+        description: 'Returns JWT token and vendor data on successful login',
         schema: {
             type: 'object',
             properties: {
                 access_token: {
                     type: 'string',
                     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                },
+                user: {
+                    type: 'object',
+                    properties: {
+                        id: {
+                            type: 'string',
+                            example: '123e4567-e89b-12d3-a456-426614174000'
+                        },
+                        username: {
+                            type: 'string',
+                            example: 'cafeteria1'
+                        },
+                        email: {
+                            type: 'string',
+                            example: 'cafeteria1@university.edu'
+                        },
+                        businessName: {
+                            type: 'string',
+                            example: 'University Cafeteria'
+                        },
+                        role: {
+                            type: 'string',
+                            example: 'vendor',
+                            enum: ['student', 'vendor', 'admin']
+                        },
+                        createdAt: {
+                            type: 'string',
+                            format: 'date-time',
+                            example: '2024-03-19T12:00:00Z'
+                        },
+                        updatedAt: {
+                            type: 'string',
+                            format: 'date-time',
+                            example: '2024-03-19T12:00:00Z'
+                        }
+                    }
                 }
             }
         }
