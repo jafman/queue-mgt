@@ -18,12 +18,27 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const wallet_entity_1 = require("./entities/wallet.entity");
 const transaction_entity_1 = require("./entities/transaction.entity");
+const student_service_1 = require("../users/student/student.service");
+const vendor_service_1 = require("../users/vendor/vendor.service");
+const auth_service_1 = require("../../auth/services/auth.service");
+const student_entity_1 = require("../users/entities/student.entity");
+const vendor_entity_1 = require("../users/entities/vendor.entity");
 let WalletService = class WalletService {
     walletRepository;
     transactionRepository;
-    constructor(walletRepository, transactionRepository) {
+    studentRepository;
+    vendorRepository;
+    studentService;
+    vendorService;
+    authService;
+    constructor(walletRepository, transactionRepository, studentRepository, vendorRepository, studentService, vendorService, authService) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
+        this.studentRepository = studentRepository;
+        this.vendorRepository = vendorRepository;
+        this.studentService = studentService;
+        this.vendorService = vendorService;
+        this.authService = authService;
     }
     async getOrCreateWallet(userId, userType) {
         let wallet = await this.walletRepository.findOne({
@@ -42,7 +57,24 @@ let WalletService = class WalletService {
     }
     async getWalletBalance(userId, userType) {
         const wallet = await this.getOrCreateWallet(userId, userType);
-        return wallet.balance;
+        console.log({ userId, userType });
+        let email = 'Email not found';
+        if (userType === 'student') {
+            const student = await this.studentRepository.findOne({ where: { id: userId } });
+            if (student?.email) {
+                email = student.email;
+            }
+        }
+        else if (userType === 'vendor') {
+            const vendor = await this.vendorRepository.findOne({ where: { id: userId } });
+            if (vendor?.email) {
+                email = vendor.email;
+            }
+        }
+        return {
+            balance: wallet.balance,
+            email
+        };
     }
     async createTransaction(userId, userType, createTransactionDto) {
         const wallet = await this.getOrCreateWallet(userId, userType);
@@ -109,7 +141,14 @@ exports.WalletService = WalletService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(wallet_entity_1.Wallet)),
     __param(1, (0, typeorm_1.InjectRepository)(transaction_entity_1.Transaction)),
+    __param(2, (0, typeorm_1.InjectRepository)(student_entity_1.Student)),
+    __param(3, (0, typeorm_1.InjectRepository)(vendor_entity_1.Vendor)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        typeorm_2.Repository])
+        typeorm_2.Repository,
+        typeorm_2.Repository,
+        typeorm_2.Repository,
+        student_service_1.StudentService,
+        vendor_service_1.VendorService,
+        auth_service_1.AuthService])
 ], WalletService);
 //# sourceMappingURL=wallet.service.js.map

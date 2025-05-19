@@ -21,6 +21,7 @@ async function bootstrap() {
         .addTag('Vendors', 'Vendor management endpoints')
         .addTag('Students', 'Student management endpoints')
         .addTag('Admins', 'Admin management endpoints')
+        .addTag('Wallet', 'Wallet and transaction management endpoints')
         .addBearerAuth({
         type: 'http',
         scheme: 'bearer',

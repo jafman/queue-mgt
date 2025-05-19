@@ -13,13 +13,21 @@ const wallet_entity_1 = require("./entities/wallet.entity");
 const transaction_entity_1 = require("./entities/transaction.entity");
 const wallet_service_1 = require("./wallet.service");
 const wallet_controller_1 = require("./wallet.controller");
+const student_module_1 = require("../users/student/student.module");
+const vendor_module_1 = require("../users/vendor/vendor.module");
+const student_entity_1 = require("../users/entities/student.entity");
+const vendor_entity_1 = require("../users/entities/vendor.entity");
+const auth_module_1 = require("../../auth/auth.module");
 let WalletModule = class WalletModule {
 };
 exports.WalletModule = WalletModule;
 exports.WalletModule = WalletModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([wallet_entity_1.Wallet, transaction_entity_1.Transaction]),
+            typeorm_1.TypeOrmModule.forFeature([wallet_entity_1.Wallet, transaction_entity_1.Transaction, student_entity_1.Student, vendor_entity_1.Vendor]),
+            student_module_1.StudentModule,
+            vendor_module_1.VendorModule,
+            auth_module_1.AuthModule,
         ],
         controllers: [wallet_controller_1.WalletController],
         providers: [wallet_service_1.WalletService],

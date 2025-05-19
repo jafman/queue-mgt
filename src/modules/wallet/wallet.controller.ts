@@ -19,13 +19,17 @@ export class WalletController {
   @ApiOperation({ summary: 'Get wallet balance' })
   @ApiResponse({
     status: 200,
-    description: 'Returns the current wallet balance',
+    description: 'Returns the current wallet balance and user email',
     schema: {
       type: 'object',
       properties: {
         balance: {
           type: 'number',
           example: 1000.50
+        },
+        email: {
+          type: 'string',
+          example: 'user@example.com'
         }
       }
     }
@@ -39,11 +43,10 @@ export class WalletController {
     description: 'Forbidden - User does not have required role'
   })
   async getBalance(@Request() req) {
-    const balance = await this.walletService.getWalletBalance(
+    return this.walletService.getWalletBalance(
       req.user.id,
       req.user.role,
     );
-    return { balance };
   }
 
   @Post('transactions')

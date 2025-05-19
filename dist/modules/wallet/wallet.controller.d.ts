@@ -5,6 +5,7 @@ export declare class WalletController {
     constructor(walletService: WalletService);
     getBalance(req: any): Promise<{
         balance: number;
+        email: string;
     }>;
     createTransaction(req: any, createTransactionDto: CreateTransactionDto): Promise<import("./entities/transaction.entity").Transaction>;
     getTransactionHistory(req: any, page?: number, limit?: number): Promise<{

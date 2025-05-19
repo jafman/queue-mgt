@@ -4,6 +4,11 @@ import { Repository } from 'typeorm';
 import { Wallet } from './entities/wallet.entity';
 import { Transaction, TransactionType } from './entities/transaction.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { StudentService } from '../users/student/student.service';
+import { VendorService } from '../users/vendor/vendor.service';
+import { AuthService } from '../../auth/services/auth.service';
+import { Student } from '../users/entities/student.entity';
+import { Vendor } from '../users/entities/vendor.entity';
 
 @Injectable()
 export class WalletService {
@@ -12,6 +17,13 @@ export class WalletService {
     private walletRepository: Repository<Wallet>,
     @InjectRepository(Transaction)
     private transactionRepository: Repository<Transaction>,
+    @InjectRepository(Student)
+    private studentRepository: Repository<Student>,
+    @InjectRepository(Vendor)
+    private vendorRepository: Repository<Vendor>,
+    private studentService: StudentService,
+    private vendorService: VendorService,
+    private authService: AuthService,
   ) {}
 
   async getOrCreateWallet(userId: string, userType: string): Promise<Wallet> {
@@ -32,9 +44,26 @@ export class WalletService {
     return wallet;
   }
 
-  async getWalletBalance(userId: string, userType: string): Promise<number> {
+  async getWalletBalance(userId: string, userType: string): Promise<{ balance: number; email: string }> {
     const wallet = await this.getOrCreateWallet(userId, userType);
-    return wallet.balance;
+    console.log({userId, userType});
+    let email = 'Email not found';
+    if (userType === 'student') {
+      const student = await this.studentRepository.findOne({ where: { id: userId } });
+      if (student?.email) {
+        email = student.email;
+      }
+    } else if (userType === 'vendor') {
+      const vendor = await this.vendorRepository.findOne({ where: { id: userId } });
+      if (vendor?.email) {
+        email = vendor.email;
+      }
+    }
+
+    return { 
+      balance: wallet.balance,
+      email
+    };
   }
 
   async createTransaction(

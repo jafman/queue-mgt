@@ -27,8 +27,7 @@ let WalletController = class WalletController {
         this.walletService = walletService;
     }
     async getBalance(req) {
-        const balance = await this.walletService.getWalletBalance(req.user.id, req.user.role);
-        return { balance };
+        return this.walletService.getWalletBalance(req.user.id, req.user.role);
     }
     async createTransaction(req, createTransactionDto) {
         return this.walletService.createTransaction(req.user.id, req.user.role, createTransactionDto);
@@ -44,13 +43,17 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Get wallet balance' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
-        description: 'Returns the current wallet balance',
+        description: 'Returns the current wallet balance and user email',
         schema: {
             type: 'object',
             properties: {
                 balance: {
                     type: 'number',
                     example: 1000.50
+                },
+                email: {
+                    type: 'string',
+                    example: 'user@example.com'
                 }
             }
         }
