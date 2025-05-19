@@ -12,5 +12,5 @@ export declare class MailerService {
         text: string;
         from?: string;
         fromName?: string;
-    }): Promise<import("mailersend/lib/services/request.service").APIResponse>;
+    }): Promise<true | import("mailersend/lib/services/request.service").APIResponse>;
 }

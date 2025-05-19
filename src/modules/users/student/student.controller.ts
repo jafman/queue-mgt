@@ -46,8 +46,50 @@ export class StudentController {
     description: 'Verifies the OTP and creates the student account if verification is successful.'
   })
   @ApiBody({ 
-    type: VerifyOtpDto,
-    description: 'OTP verification information'
+    schema: {
+      type: 'object',
+      properties: {
+        otp: {
+          type: 'string',
+          description: '6-digit OTP sent to email',
+          example: '123456'
+        },
+        email: {
+          type: 'string',
+          description: 'Email address to verify',
+          example: 'student@university.edu'
+        },
+        studentData: {
+          type: 'object',
+          properties: {
+            username: {
+              type: 'string',
+              example: 'john.doe2023'
+            },
+            email: {
+              type: 'string',
+              example: 'john.doe@university.edu'
+            },
+            password: {
+              type: 'string',
+              example: 'SecurePass123!'
+            },
+            firstName: {
+              type: 'string',
+              example: 'John'
+            },
+            lastName: {
+              type: 'string',
+              example: 'Doe'
+            },
+            studentId: {
+              type: 'string',
+              example: 'STU2023001'
+            }
+          }
+        }
+      }
+    }
   })
   @ApiResponse({ 
     status: 201, 
@@ -59,10 +101,10 @@ export class StudentController {
     description: 'Invalid or expired OTP'
   })
   async verifyAndCreate(
-    @Body() verifyOtpDto: VerifyOtpDto,
-    @Body() createStudentDto: CreateStudentDto,
+    @Body() body: { otp: string; email: string; studentData: CreateStudentDto },
   ): Promise<StudentResponseDto> {
-    return this.studentService.verifyAndCreate(verifyOtpDto, createStudentDto);
+    const { otp, email, studentData } = body;
+    return this.studentService.verifyAndCreate({ otp, email }, studentData);
   }
 
   @Get()

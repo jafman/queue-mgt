@@ -18,7 +18,6 @@ const swagger_1 = require("@nestjs/swagger");
 const student_service_1 = require("./student.service");
 const create_student_dto_1 = require("../dto/create-student.dto");
 const student_response_dto_1 = require("../dto/student-response.dto");
-const verify_otp_dto_1 = require("../dto/verify-otp.dto");
 const jwt_auth_guard_1 = require("../../../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../../../auth/guards/roles.guard");
 const roles_decorator_1 = require("../../../auth/decorators/roles.decorator");
@@ -34,8 +33,9 @@ let StudentController = class StudentController {
         await this.studentService.initiateRegistration(createStudentDto);
         return { message: 'OTP sent successfully to your email' };
     }
-    async verifyAndCreate(verifyOtpDto, createStudentDto) {
-        return this.studentService.verifyAndCreate(verifyOtpDto, createStudentDto);
+    async verifyAndCreate(body) {
+        const { otp, email, studentData } = body;
+        return this.studentService.verifyAndCreate({ otp, email }, studentData);
     }
     async findAll(paginationDto) {
         return this.studentService.findAll(paginationDto);
@@ -74,8 +74,50 @@ __decorate([
         description: 'Verifies the OTP and creates the student account if verification is successful.'
     }),
     (0, swagger_1.ApiBody)({
-        type: verify_otp_dto_1.VerifyOtpDto,
-        description: 'OTP verification information'
+        schema: {
+            type: 'object',
+            properties: {
+                otp: {
+                    type: 'string',
+                    description: '6-digit OTP sent to email',
+                    example: '123456'
+                },
+                email: {
+                    type: 'string',
+                    description: 'Email address to verify',
+                    example: 'student@university.edu'
+                },
+                studentData: {
+                    type: 'object',
+                    properties: {
+                        username: {
+                            type: 'string',
+                            example: 'john.doe2023'
+                        },
+                        email: {
+                            type: 'string',
+                            example: 'john.doe@university.edu'
+                        },
+                        password: {
+                            type: 'string',
+                            example: 'SecurePass123!'
+                        },
+                        firstName: {
+                            type: 'string',
+                            example: 'John'
+                        },
+                        lastName: {
+                            type: 'string',
+                            example: 'Doe'
+                        },
+                        studentId: {
+                            type: 'string',
+                            example: 'STU2023001'
+                        }
+                    }
+                }
+            }
+        }
     }),
     (0, swagger_1.ApiResponse)({
         status: 201,
@@ -87,10 +129,8 @@ __decorate([
         description: 'Invalid or expired OTP'
     }),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [verify_otp_dto_1.VerifyOtpDto,
-        create_student_dto_1.CreateStudentDto]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], StudentController.prototype, "verifyAndCreate", null);
 __decorate([

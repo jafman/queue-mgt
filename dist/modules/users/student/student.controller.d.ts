@@ -1,7 +1,6 @@
 import { StudentService } from './student.service';
 import { CreateStudentDto } from '../dto/create-student.dto';
 import { StudentResponseDto } from '../dto/student-response.dto';
-import { VerifyOtpDto } from '../dto/verify-otp.dto';
 import { PaginationDto } from '../dto/pagination.dto';
 import { StudentListResponseDto } from '../dto/student-list.dto';
 export declare class StudentController {
@@ -10,6 +9,10 @@ export declare class StudentController {
     initiateRegistration(createStudentDto: CreateStudentDto): Promise<{
         message: string;
     }>;
-    verifyAndCreate(verifyOtpDto: VerifyOtpDto, createStudentDto: CreateStudentDto): Promise<StudentResponseDto>;
+    verifyAndCreate(body: {
+        otp: string;
+        email: string;
+        studentData: CreateStudentDto;
+    }): Promise<StudentResponseDto>;
     findAll(paginationDto: PaginationDto): Promise<StudentListResponseDto>;
 }
