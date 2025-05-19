@@ -18,29 +18,33 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const student_entity_1 = require("../entities/student.entity");
 const student_response_dto_1 = require("../dto/student-response.dto");
+const mailer_service_1 = require("../../../mailer/mailer.service");
 const bcrypt = require("bcrypt");
 let StudentService = class StudentService {
     studentRepository;
-    constructor(studentRepository) {
+    mailerService;
+    otpStore = new Map();
+    constructor(studentRepository, mailerService) {
         this.studentRepository = studentRepository;
+        this.mailerService = mailerService;
     }
-    async findByStudentIdOrEmail(identifier) {
-        return this.studentRepository.findOne({
-            where: [
-                { studentId: identifier },
-                { email: identifier }
-            ]
+    generateOTP() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+    async sendOTPEmail(email, otp) {
+        await this.mailerService.sendEmail({
+            to: email,
+            toName: 'Student',
+            subject: 'Email Verification OTP',
+            html: `
+        <h1>Email Verification</h1>
+        <p>Your OTP for email verification is: <strong>${otp}</strong></p>
+        <p>This OTP will expire in 10 minutes.</p>
+      `,
+            text: `Your OTP for email verification is: ${otp}. This OTP will expire in 10 minutes.`,
         });
     }
-    async findByUsernameOrEmail(identifier) {
-        return this.studentRepository.findOne({
-            where: [
-                { username: identifier },
-                { email: identifier }
-            ]
-        });
-    }
-    async create(createStudentDto) {
+    async initiateRegistration(createStudentDto) {
         const existingStudent = await this.studentRepository.findOne({
             where: [
                 { studentId: createStudentDto.studentId },
@@ -59,6 +63,24 @@ let StudentService = class StudentService {
                 throw new common_1.ConflictException('Username already exists');
             }
         }
+        const otp = this.generateOTP();
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+        this.otpStore.set(createStudentDto.email, { otp, expiresAt });
+        await this.sendOTPEmail(createStudentDto.email, otp);
+    }
+    async verifyAndCreate(verifyOtpDto, createStudentDto) {
+        const storedData = this.otpStore.get(verifyOtpDto.email);
+        if (!storedData) {
+            throw new common_1.BadRequestException('OTP not found. Please request a new OTP.');
+        }
+        if (new Date() > storedData.expiresAt) {
+            this.otpStore.delete(verifyOtpDto.email);
+            throw new common_1.BadRequestException('OTP has expired. Please request a new OTP.');
+        }
+        if (storedData.otp !== verifyOtpDto.otp) {
+            throw new common_1.BadRequestException('Invalid OTP.');
+        }
+        this.otpStore.delete(verifyOtpDto.email);
         const hashedPassword = await bcrypt.hash(createStudentDto.password, 10);
         const student = this.studentRepository.create({
             ...createStudentDto,
@@ -66,6 +88,22 @@ let StudentService = class StudentService {
         });
         const savedStudent = await this.studentRepository.save(student);
         return student_response_dto_1.StudentResponseDto.fromEntity(savedStudent);
+    }
+    async findByStudentIdOrEmail(identifier) {
+        return this.studentRepository.findOne({
+            where: [
+                { studentId: identifier },
+                { email: identifier }
+            ]
+        });
+    }
+    async findByUsernameOrEmail(identifier) {
+        return this.studentRepository.findOne({
+            where: [
+                { username: identifier },
+                { email: identifier }
+            ]
+        });
     }
     async findAll(paginationDto) {
         const { page = 1, limit = 10 } = paginationDto;
@@ -90,6 +128,7 @@ exports.StudentService = StudentService;
 exports.StudentService = StudentService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(student_entity_1.Student)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        mailer_service_1.MailerService])
 ], StudentService);
 //# sourceMappingURL=student.service.js.map

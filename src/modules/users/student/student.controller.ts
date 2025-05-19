@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiQuery, A
 import { StudentService } from './student.service';
 import { CreateStudentDto } from '../dto/create-student.dto';
 import { StudentResponseDto } from '../dto/student-response.dto';
+import { VerifyOtpDto } from '../dto/verify-otp.dto';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { Roles } from '../../../auth/decorators/roles.decorator';
@@ -15,27 +16,38 @@ import { StudentListResponseDto } from '../dto/student-list.dto';
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
-  @Post()
+  @Post('initiate-registration')
   @ApiOperation({ 
-    summary: 'Create a new student',
-    description: 'Creates a new student account with the provided information. Username, email, and studentId must be unique.'
+    summary: 'Initiate student registration',
+    description: 'Starts the registration process by sending an OTP to the provided email address.'
   })
-  @ApiBody({ 
-    type: CreateStudentDto,
-    description: 'Student registration information',
-    examples: {
-      example1: {
-        value: {
-          username: 'john.doe2023',
-          email: 'john.doe@university.edu',
-          password: 'SecurePass123!',
-          firstName: 'John',
-          lastName: 'Doe',
-          studentId: 'STU2023001'
-        },
-        summary: 'Example student registration'
+  @ApiBody({ type: CreateStudentDto })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'OTP sent successfully',
+    schema: {
+      example: {
+        message: 'OTP sent successfully to your email'
       }
     }
+  })
+  @ApiResponse({ 
+    status: 409, 
+    description: 'Conflict - Username, email, or studentId already exists'
+  })
+  async initiateRegistration(@Body() createStudentDto: CreateStudentDto): Promise<{ message: string }> {
+    await this.studentService.initiateRegistration(createStudentDto);
+    return { message: 'OTP sent successfully to your email' };
+  }
+
+  @Post('verify-and-create')
+  @ApiOperation({ 
+    summary: 'Verify OTP and create student account',
+    description: 'Verifies the OTP and creates the student account if verification is successful.'
+  })
+  @ApiBody({ 
+    type: VerifyOtpDto,
+    description: 'OTP verification information'
   })
   @ApiResponse({ 
     status: 201, 
@@ -43,18 +55,14 @@ export class StudentController {
     type: StudentResponseDto
   })
   @ApiResponse({ 
-    status: 409, 
-    description: 'Conflict - Username, email, or studentId already exists',
-    schema: {
-      example: {
-        statusCode: 409,
-        message: 'Username already exists',
-        error: 'Conflict'
-      }
-    }
+    status: 400, 
+    description: 'Invalid or expired OTP'
   })
-  async create(@Body() createStudentDto: CreateStudentDto): Promise<StudentResponseDto> {
-    return this.studentService.create(createStudentDto);
+  async verifyAndCreate(
+    @Body() verifyOtpDto: VerifyOtpDto,
+    @Body() createStudentDto: CreateStudentDto,
+  ): Promise<StudentResponseDto> {
+    return this.studentService.verifyAndCreate(verifyOtpDto, createStudentDto);
   }
 
   @Get()
@@ -87,25 +95,11 @@ export class StudentController {
   })
   @ApiResponse({ 
     status: 401, 
-    description: 'Unauthorized - Invalid or missing JWT token',
-    schema: {
-      example: {
-        statusCode: 401,
-        message: 'Unauthorized',
-        error: 'Invalid or missing JWT token'
-      }
-    }
+    description: 'Unauthorized - Invalid or missing JWT token'
   })
   @ApiResponse({ 
     status: 403, 
-    description: 'Forbidden - Admin access required',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'Forbidden resource',
-        error: 'Admin role required'
-      }
-    }
+    description: 'Forbidden - Admin access required'
   })
   async findAll(
     @Query() paginationDto: PaginationDto,

@@ -18,6 +18,7 @@ const swagger_1 = require("@nestjs/swagger");
 const student_service_1 = require("./student.service");
 const create_student_dto_1 = require("../dto/create-student.dto");
 const student_response_dto_1 = require("../dto/student-response.dto");
+const verify_otp_dto_1 = require("../dto/verify-otp.dto");
 const jwt_auth_guard_1 = require("../../../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../../../auth/guards/roles.guard");
 const roles_decorator_1 = require("../../../auth/decorators/roles.decorator");
@@ -29,8 +30,12 @@ let StudentController = class StudentController {
     constructor(studentService) {
         this.studentService = studentService;
     }
-    async create(createStudentDto) {
-        return this.studentService.create(createStudentDto);
+    async initiateRegistration(createStudentDto) {
+        await this.studentService.initiateRegistration(createStudentDto);
+        return { message: 'OTP sent successfully to your email' };
+    }
+    async verifyAndCreate(verifyOtpDto, createStudentDto) {
+        return this.studentService.verifyAndCreate(verifyOtpDto, createStudentDto);
     }
     async findAll(paginationDto) {
         return this.studentService.findAll(paginationDto);
@@ -38,27 +43,39 @@ let StudentController = class StudentController {
 };
 exports.StudentController = StudentController;
 __decorate([
-    (0, common_1.Post)(),
+    (0, common_1.Post)('initiate-registration'),
     (0, swagger_1.ApiOperation)({
-        summary: 'Create a new student',
-        description: 'Creates a new student account with the provided information. Username, email, and studentId must be unique.'
+        summary: 'Initiate student registration',
+        description: 'Starts the registration process by sending an OTP to the provided email address.'
     }),
-    (0, swagger_1.ApiBody)({
-        type: create_student_dto_1.CreateStudentDto,
-        description: 'Student registration information',
-        examples: {
-            example1: {
-                value: {
-                    username: 'john.doe2023',
-                    email: 'john.doe@university.edu',
-                    password: 'SecurePass123!',
-                    firstName: 'John',
-                    lastName: 'Doe',
-                    studentId: 'STU2023001'
-                },
-                summary: 'Example student registration'
+    (0, swagger_1.ApiBody)({ type: create_student_dto_1.CreateStudentDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'OTP sent successfully',
+        schema: {
+            example: {
+                message: 'OTP sent successfully to your email'
             }
         }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 409,
+        description: 'Conflict - Username, email, or studentId already exists'
+    }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_student_dto_1.CreateStudentDto]),
+    __metadata("design:returntype", Promise)
+], StudentController.prototype, "initiateRegistration", null);
+__decorate([
+    (0, common_1.Post)('verify-and-create'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Verify OTP and create student account',
+        description: 'Verifies the OTP and creates the student account if verification is successful.'
+    }),
+    (0, swagger_1.ApiBody)({
+        type: verify_otp_dto_1.VerifyOtpDto,
+        description: 'OTP verification information'
     }),
     (0, swagger_1.ApiResponse)({
         status: 201,
@@ -66,21 +83,16 @@ __decorate([
         type: student_response_dto_1.StudentResponseDto
     }),
     (0, swagger_1.ApiResponse)({
-        status: 409,
-        description: 'Conflict - Username, email, or studentId already exists',
-        schema: {
-            example: {
-                statusCode: 409,
-                message: 'Username already exists',
-                error: 'Conflict'
-            }
-        }
+        status: 400,
+        description: 'Invalid or expired OTP'
     }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_student_dto_1.CreateStudentDto]),
+    __metadata("design:paramtypes", [verify_otp_dto_1.VerifyOtpDto,
+        create_student_dto_1.CreateStudentDto]),
     __metadata("design:returntype", Promise)
-], StudentController.prototype, "create", null);
+], StudentController.prototype, "verifyAndCreate", null);
 __decorate([
     (0, common_1.Get)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
@@ -112,25 +124,11 @@ __decorate([
     }),
     (0, swagger_1.ApiResponse)({
         status: 401,
-        description: 'Unauthorized - Invalid or missing JWT token',
-        schema: {
-            example: {
-                statusCode: 401,
-                message: 'Unauthorized',
-                error: 'Invalid or missing JWT token'
-            }
-        }
+        description: 'Unauthorized - Invalid or missing JWT token'
     }),
     (0, swagger_1.ApiResponse)({
         status: 403,
-        description: 'Forbidden - Admin access required',
-        schema: {
-            example: {
-                statusCode: 403,
-                message: 'Forbidden resource',
-                error: 'Admin role required'
-            }
-        }
+        description: 'Forbidden - Admin access required'
     }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
