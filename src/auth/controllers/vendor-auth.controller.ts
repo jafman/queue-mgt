@@ -35,6 +35,6 @@ export class VendorAuthController {
       loginDto.password,
       vendor,
     );
-    return this.authService.login(validatedUser);
+    return this.authService.login(validatedUser, 'vendor');
   }
 } 

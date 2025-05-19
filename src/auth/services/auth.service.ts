@@ -24,14 +24,14 @@ export class AuthService {
     return result;
   }
 
-  async login(user: any) {
+  async login(user: any, userType: string) {
     // Determine the role based on the user type
     let role: Role;
-    if (user instanceof Admin) {
+    if (userType === 'admin') {
       role = Role.ADMIN;
-    } else if (user instanceof Student) {
+    } else if (userType === 'student') {
       role = Role.STUDENT;
-    } else if (user instanceof Vendor) {
+    } else if (userType === 'vendor') {
       role = Role.VENDOR;
     } else {
       throw new UnauthorizedException('Invalid user type');

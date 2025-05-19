@@ -48,6 +48,6 @@ export class AdminAuthController {
       loginDto.password,
       admin,
     );
-    return this.authService.login(validatedUser);
+    return this.authService.login(validatedUser, 'admin');
   }
 } 

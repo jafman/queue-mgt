@@ -14,9 +14,6 @@ const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const bcrypt = require("bcrypt");
 const role_enum_1 = require("../enums/role.enum");
-const admin_entity_1 = require("../../modules/users/entities/admin.entity");
-const student_entity_1 = require("../../modules/users/entities/student.entity");
-const vendor_entity_1 = require("../../modules/users/entities/vendor.entity");
 let AuthService = class AuthService {
     jwtService;
     constructor(jwtService) {
@@ -33,15 +30,15 @@ let AuthService = class AuthService {
         const { password: _, ...result } = user;
         return result;
     }
-    async login(user) {
+    async login(user, userType) {
         let role;
-        if (user instanceof admin_entity_1.Admin) {
+        if (userType === 'admin') {
             role = role_enum_1.Role.ADMIN;
         }
-        else if (user instanceof student_entity_1.Student) {
+        else if (userType === 'student') {
             role = role_enum_1.Role.STUDENT;
         }
-        else if (user instanceof vendor_entity_1.Vendor) {
+        else if (userType === 'vendor') {
             role = role_enum_1.Role.VENDOR;
         }
         else {

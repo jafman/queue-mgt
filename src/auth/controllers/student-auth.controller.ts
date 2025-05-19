@@ -35,6 +35,6 @@ export class StudentAuthController {
       loginDto.password,
       student,
     );
-    return this.authService.login(validatedUser);
+    return this.authService.login(validatedUser, 'student');
   }
 } 

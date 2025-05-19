@@ -28,7 +28,7 @@ let AdminAuthController = class AdminAuthController {
     async login(loginDto) {
         const admin = await this.adminService.findByUsernameOrEmail(loginDto.username);
         const validatedUser = await this.authService.validateUser(loginDto.username, loginDto.password, admin);
-        return this.authService.login(validatedUser);
+        return this.authService.login(validatedUser, 'admin');
     }
 };
 exports.AdminAuthController = AdminAuthController;

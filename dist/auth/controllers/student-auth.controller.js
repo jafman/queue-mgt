@@ -28,7 +28,7 @@ let StudentAuthController = class StudentAuthController {
     async login(loginDto) {
         const student = await this.studentService.findByUsernameOrEmail(loginDto.username);
         const validatedUser = await this.authService.validateUser(loginDto.username, loginDto.password, student);
-        return this.authService.login(validatedUser);
+        return this.authService.login(validatedUser, 'student');
     }
 };
 exports.StudentAuthController = StudentAuthController;
