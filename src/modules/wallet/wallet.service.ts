@@ -161,4 +161,8 @@ export class WalletService {
 
     return { transactions, total };
   }
+
+  async updateWalletBalance(wallet: Wallet) {
+    return this.walletRepository.save(wallet);
+  }
 } 

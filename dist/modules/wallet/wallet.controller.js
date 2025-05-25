@@ -21,10 +21,15 @@ const jwt_auth_guard_1 = require("../../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../../auth/guards/roles.guard");
 const roles_decorator_1 = require("../../auth/decorators/roles.decorator");
 const role_enum_1 = require("../../auth/enums/role.enum");
+const paystack_service_1 = require("./paystack.service");
+const initialize_wallet_funding_dto_1 = require("./dto/initialize-wallet-funding.dto");
+const transaction_entity_1 = require("./entities/transaction.entity");
 let WalletController = class WalletController {
     walletService;
-    constructor(walletService) {
+    paystackService;
+    constructor(walletService, paystackService) {
         this.walletService = walletService;
+        this.paystackService = paystackService;
     }
     async getBalance(req) {
         return this.walletService.getWalletBalance(req.user.id, req.user.role);
@@ -34,6 +39,22 @@ let WalletController = class WalletController {
     }
     async getTransactionHistory(req, page = 1, limit = 10) {
         return this.walletService.getTransactionHistory(req.user.id, req.user.role, page, limit);
+    }
+    async initializeFunding(req, initializeFundingDto) {
+        const { amount, email } = initializeFundingDto;
+        const paystackResponse = await this.paystackService.initializeTransaction(email, amount);
+        const transaction = await this.walletService.createTransaction(req.user.id, req.user.role, {
+            amount,
+            type: transaction_entity_1.TransactionType.CREDIT,
+            description: 'Wallet funding via Paystack',
+            reference: paystackResponse.data.reference,
+            status: transaction_entity_1.TransactionStatus.PENDING,
+        });
+        return {
+            access_code: paystackResponse.data.access_code,
+            reference: paystackResponse.data.reference,
+            authorization_url: paystackResponse.data.authorization_url,
+        };
     }
 };
 exports.WalletController = WalletController;
@@ -218,11 +239,58 @@ __decorate([
     __metadata("design:paramtypes", [Object, Number, Number]),
     __metadata("design:returntype", Promise)
 ], WalletController.prototype, "getTransactionHistory", null);
+__decorate([
+    (0, common_1.Post)('initialize-funding'),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.STUDENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Initialize wallet funding via Paystack' }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Funding initialization successful',
+        schema: {
+            type: 'object',
+            properties: {
+                access_code: {
+                    type: 'string',
+                    example: 'nkdks46nymizns7',
+                    description: 'Paystack access code for payment'
+                },
+                reference: {
+                    type: 'string',
+                    example: 'nms6uvr1pl',
+                    description: 'Paystack transaction reference'
+                },
+                authorization_url: {
+                    type: 'string',
+                    example: 'https://checkout.paystack.com/nkdks46nymizns7',
+                    description: 'URL to redirect user for payment'
+                }
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Bad Request - Invalid amount or email'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing JWT token'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden - User does not have required role'
+    }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, initialize_wallet_funding_dto_1.InitializeWalletFundingDto]),
+    __metadata("design:returntype", Promise)
+], WalletController.prototype, "initializeFunding", null);
 exports.WalletController = WalletController = __decorate([
     (0, swagger_1.ApiTags)('Wallet'),
     (0, common_1.Controller)('wallet'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
-    __metadata("design:paramtypes", [wallet_service_1.WalletService])
+    __metadata("design:paramtypes", [wallet_service_1.WalletService,
+        paystack_service_1.PaystackService])
 ], WalletController);
 //# sourceMappingURL=wallet.controller.js.map

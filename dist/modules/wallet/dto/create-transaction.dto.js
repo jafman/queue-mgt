@@ -20,6 +20,9 @@ class CreateTransactionDto {
     reference;
     recipientId;
     recipientType;
+    relatedTransactionId;
+    relatedUserId;
+    status;
 }
 exports.CreateTransactionDto = CreateTransactionDto;
 __decorate([
@@ -81,4 +84,22 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateTransactionDto.prototype, "recipientType", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateTransactionDto.prototype, "relatedTransactionId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateTransactionDto.prototype, "relatedUserId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ enum: transaction_entity_1.TransactionStatus, required: false }),
+    (0, class_validator_1.IsEnum)(transaction_entity_1.TransactionStatus),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateTransactionDto.prototype, "status", void 0);
 //# sourceMappingURL=create-transaction.dto.js.map

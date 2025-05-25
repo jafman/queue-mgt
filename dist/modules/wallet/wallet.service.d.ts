@@ -26,4 +26,5 @@ export declare class WalletService {
         transactions: Transaction[];
         total: number;
     }>;
+    updateWalletBalance(wallet: Wallet): Promise<Wallet>;
 }

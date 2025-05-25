@@ -6,6 +6,17 @@ export enum TransactionType {
   DEBIT = 'debit'
 }
 
+export enum TransactionStatus {
+  PENDING = 'pending',
+  SUCCESS = 'success',
+  FAILED = 'failed',
+  ABANDONED = 'abandoned',
+  ONGOING = 'ongoing',
+  PROCESSING = 'processing',
+  QUEUED = 'queued',
+  REVERSED = 'reversed'
+}
+
 @Entity('transactions')
 export class Transaction {
   @PrimaryGeneratedColumn('uuid')
@@ -19,6 +30,13 @@ export class Transaction {
     enum: TransactionType
   })
   type: TransactionType;
+
+  @Column({
+    type: 'enum',
+    enum: TransactionStatus,
+    default: TransactionStatus.PENDING
+  })
+  status: TransactionStatus;
 
   @Column({ nullable: true })
   description: string;

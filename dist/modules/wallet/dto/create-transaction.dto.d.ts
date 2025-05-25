@@ -1,4 +1,4 @@
-import { TransactionType } from '../entities/transaction.entity';
+import { TransactionType, TransactionStatus } from '../entities/transaction.entity';
 export declare class CreateTransactionDto {
     amount: number;
     type: TransactionType;
@@ -6,4 +6,7 @@ export declare class CreateTransactionDto {
     reference?: string;
     recipientId?: string;
     recipientType?: string;
+    relatedTransactionId?: string;
+    relatedUserId?: string;
+    status?: TransactionStatus;
 }

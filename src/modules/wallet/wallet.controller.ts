@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Query, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Query, Request, Req, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { WalletService } from './wallet.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -6,13 +6,19 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../auth/enums/role.enum';
+import { PaystackService } from './paystack.service';
+import { InitializeWalletFundingDto } from './dto/initialize-wallet-funding.dto';
+import { Transaction, TransactionType, TransactionStatus } from './entities/transaction.entity';
 
 @ApiTags('Wallet')
 @Controller('wallet')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 export class WalletController {
-  constructor(private readonly walletService: WalletService) {}
+  constructor(
+    private readonly walletService: WalletService,
+    private readonly paystackService: PaystackService,
+  ) {}
 
   @Get('balance')
   @Roles(Role.STUDENT, Role.VENDOR)
@@ -203,5 +209,73 @@ export class WalletController {
       page,
       limit,
     );
+  }
+
+  @Post('initialize-funding')
+  @Roles(Role.STUDENT)
+  @ApiOperation({ summary: 'Initialize wallet funding via Paystack' })
+  @ApiResponse({
+    status: 201,
+    description: 'Funding initialization successful',
+    schema: {
+      type: 'object',
+      properties: {
+        access_code: {
+          type: 'string',
+          example: 'nkdks46nymizns7',
+          description: 'Paystack access code for payment'
+        },
+        reference: {
+          type: 'string',
+          example: 'nms6uvr1pl',
+          description: 'Paystack transaction reference'
+        },
+        authorization_url: {
+          type: 'string',
+          example: 'https://checkout.paystack.com/nkdks46nymizns7',
+          description: 'URL to redirect user for payment'
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Invalid amount or email'
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing JWT token'
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User does not have required role'
+  })
+  async initializeFunding(
+    @Req() req,
+    @Body() initializeFundingDto: InitializeWalletFundingDto,
+  ) {
+    const { amount, email } = initializeFundingDto;
+
+    // Initialize Paystack transaction
+    const paystackResponse = await this.paystackService.initializeTransaction(email, amount);
+
+    // Create pending transaction record
+    const transaction = await this.walletService.createTransaction(
+      req.user.id,
+      req.user.role,
+      {
+        amount,
+        type: TransactionType.CREDIT,
+        description: 'Wallet funding via Paystack',
+        reference: paystackResponse.data.reference,
+        status: TransactionStatus.PENDING,
+      },
+    );
+
+    return {
+      access_code: paystackResponse.data.access_code,
+      reference: paystackResponse.data.reference,
+      authorization_url: paystackResponse.data.authorization_url,
+    };
   }
 } 

@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Transaction = exports.TransactionType = void 0;
+exports.Transaction = exports.TransactionStatus = exports.TransactionType = void 0;
 const typeorm_1 = require("typeorm");
 const wallet_entity_1 = require("./wallet.entity");
 var TransactionType;
@@ -17,10 +17,22 @@ var TransactionType;
     TransactionType["CREDIT"] = "credit";
     TransactionType["DEBIT"] = "debit";
 })(TransactionType || (exports.TransactionType = TransactionType = {}));
+var TransactionStatus;
+(function (TransactionStatus) {
+    TransactionStatus["PENDING"] = "pending";
+    TransactionStatus["SUCCESS"] = "success";
+    TransactionStatus["FAILED"] = "failed";
+    TransactionStatus["ABANDONED"] = "abandoned";
+    TransactionStatus["ONGOING"] = "ongoing";
+    TransactionStatus["PROCESSING"] = "processing";
+    TransactionStatus["QUEUED"] = "queued";
+    TransactionStatus["REVERSED"] = "reversed";
+})(TransactionStatus || (exports.TransactionStatus = TransactionStatus = {}));
 let Transaction = class Transaction {
     id;
     amount;
     type;
+    status;
     description;
     reference;
     relatedTransactionId;
@@ -44,6 +56,14 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], Transaction.prototype, "type", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: TransactionStatus,
+        default: TransactionStatus.PENDING
+    }),
+    __metadata("design:type", String)
+], Transaction.prototype, "status", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)

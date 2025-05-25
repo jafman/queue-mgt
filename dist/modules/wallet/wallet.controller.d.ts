@@ -1,15 +1,24 @@
 import { WalletService } from './wallet.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { PaystackService } from './paystack.service';
+import { InitializeWalletFundingDto } from './dto/initialize-wallet-funding.dto';
+import { Transaction } from './entities/transaction.entity';
 export declare class WalletController {
     private readonly walletService;
-    constructor(walletService: WalletService);
+    private readonly paystackService;
+    constructor(walletService: WalletService, paystackService: PaystackService);
     getBalance(req: any): Promise<{
         balance: number;
         email: string;
     }>;
-    createTransaction(req: any, createTransactionDto: CreateTransactionDto): Promise<import("./entities/transaction.entity").Transaction>;
+    createTransaction(req: any, createTransactionDto: CreateTransactionDto): Promise<Transaction>;
     getTransactionHistory(req: any, page?: number, limit?: number): Promise<{
-        transactions: import("./entities/transaction.entity").Transaction[];
+        transactions: Transaction[];
         total: number;
+    }>;
+    initializeFunding(req: any, initializeFundingDto: InitializeWalletFundingDto): Promise<{
+        access_code: any;
+        reference: any;
+        authorization_url: any;
     }>;
 }

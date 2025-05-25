@@ -1,6 +1,6 @@
 import { IsNumber, IsEnum, IsString, IsOptional, Min, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { TransactionType } from '../entities/transaction.entity';
+import { TransactionType, TransactionStatus } from '../entities/transaction.entity';
 
 export class CreateTransactionDto {
   @ApiProperty({
@@ -55,4 +55,19 @@ export class CreateTransactionDto {
   @IsString()
   @IsOptional()
   recipientType?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  relatedTransactionId?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  relatedUserId?: string;
+
+  @ApiProperty({ enum: TransactionStatus, required: false })
+  @IsEnum(TransactionStatus)
+  @IsOptional()
+  status?: TransactionStatus;
 } 

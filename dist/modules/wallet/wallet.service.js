@@ -135,6 +135,9 @@ let WalletService = class WalletService {
         });
         return { transactions, total };
     }
+    async updateWalletBalance(wallet) {
+        return this.walletRepository.save(wallet);
+    }
 };
 exports.WalletService = WalletService;
 exports.WalletService = WalletService = __decorate([
