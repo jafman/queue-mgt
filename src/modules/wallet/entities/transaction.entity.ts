@@ -1,5 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
-import { Wallet } from './wallet.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
 export enum TransactionType {
   CREDIT = 'credit',
@@ -50,8 +49,8 @@ export class Transaction {
   @Column({ nullable: true })
   relatedUserId: string;
 
-  @ManyToOne(() => Wallet, wallet => wallet.transactions)
-  wallet: Wallet;
+  @Column()
+  walletId: string;
 
   @CreateDateColumn()
   createdAt: Date;

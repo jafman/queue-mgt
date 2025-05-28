@@ -29,7 +29,6 @@ export class WalletService {
   async getOrCreateWallet(userId: string, userType: string): Promise<Wallet> {
     let wallet = await this.walletRepository.findOne({
       where: { userId, userType },
-      relations: ['transactions'],
     });
 
     if (!wallet) {
@@ -72,7 +71,7 @@ export class WalletService {
     createTransactionDto: CreateTransactionDto,
   ): Promise<Transaction> {
     const wallet = await this.getOrCreateWallet(userId, userType);
-
+    console.log({wallet, createTransactionDto})
     // Handle transfers
     if (createTransactionDto.recipientId && createTransactionDto.recipientType) {
       // Only students can transfer to vendors
@@ -94,7 +93,7 @@ export class WalletService {
       // Create debit transaction for sender
       const senderTransaction = this.transactionRepository.create({
         ...createTransactionDto,
-        wallet,
+        walletId: wallet.id,
         type: TransactionType.DEBIT,
         relatedUserId: recipientWallet.userId,
       });
@@ -102,7 +101,7 @@ export class WalletService {
       // Create credit transaction for recipient
       const recipientTransaction = this.transactionRepository.create({
         ...createTransactionDto,
-        wallet: recipientWallet,
+        walletId: recipientWallet.id,
         type: TransactionType.CREDIT,
         relatedUserId: wallet.userId,
       });
@@ -129,7 +128,7 @@ export class WalletService {
 
     const transaction = this.transactionRepository.create({
       ...createTransactionDto,
-      wallet,
+      walletId: wallet.id,
     });
 
     if (createTransactionDto.type === TransactionType.CREDIT) {
@@ -138,8 +137,11 @@ export class WalletService {
       wallet.balance -= createTransactionDto.amount;
     }
 
-    await this.transactionRepository.save(transaction);
-    await this.walletRepository.save(wallet);
+    // Save both transaction and wallet in a transaction to ensure atomicity
+    await this.transactionRepository.manager.transaction(async (manager) => {
+      await manager.save(transaction);
+      await manager.save(wallet);
+    });
 
     return transaction;
   }
@@ -153,7 +155,7 @@ export class WalletService {
     const wallet = await this.getOrCreateWallet(userId, userType);
 
     const [transactions, total] = await this.transactionRepository.findAndCount({
-      where: { wallet: { id: wallet.id } },
+      where: { walletId: wallet.id },
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,

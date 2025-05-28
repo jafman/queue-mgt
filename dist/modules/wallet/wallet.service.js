@@ -43,7 +43,6 @@ let WalletService = class WalletService {
     async getOrCreateWallet(userId, userType) {
         let wallet = await this.walletRepository.findOne({
             where: { userId, userType },
-            relations: ['transactions'],
         });
         if (!wallet) {
             wallet = this.walletRepository.create({
@@ -78,6 +77,7 @@ let WalletService = class WalletService {
     }
     async createTransaction(userId, userType, createTransactionDto) {
         const wallet = await this.getOrCreateWallet(userId, userType);
+        console.log({ wallet, createTransactionDto });
         if (createTransactionDto.recipientId && createTransactionDto.recipientType) {
             if (userType !== 'student' || createTransactionDto.recipientType !== 'vendor') {
                 throw new common_1.BadRequestException('Only students can transfer to vendors');
@@ -88,13 +88,13 @@ let WalletService = class WalletService {
             }
             const senderTransaction = this.transactionRepository.create({
                 ...createTransactionDto,
-                wallet,
+                walletId: wallet.id,
                 type: transaction_entity_1.TransactionType.DEBIT,
                 relatedUserId: recipientWallet.userId,
             });
             const recipientTransaction = this.transactionRepository.create({
                 ...createTransactionDto,
-                wallet: recipientWallet,
+                walletId: recipientWallet.id,
                 type: transaction_entity_1.TransactionType.CREDIT,
                 relatedUserId: wallet.userId,
             });
@@ -113,7 +113,7 @@ let WalletService = class WalletService {
         }
         const transaction = this.transactionRepository.create({
             ...createTransactionDto,
-            wallet,
+            walletId: wallet.id,
         });
         if (createTransactionDto.type === transaction_entity_1.TransactionType.CREDIT) {
             wallet.balance += createTransactionDto.amount;
@@ -121,14 +121,16 @@ let WalletService = class WalletService {
         else {
             wallet.balance -= createTransactionDto.amount;
         }
-        await this.transactionRepository.save(transaction);
-        await this.walletRepository.save(wallet);
+        await this.transactionRepository.manager.transaction(async (manager) => {
+            await manager.save(transaction);
+            await manager.save(wallet);
+        });
         return transaction;
     }
     async getTransactionHistory(userId, userType, page = 1, limit = 10) {
         const wallet = await this.getOrCreateWallet(userId, userType);
         const [transactions, total] = await this.transactionRepository.findAndCount({
-            where: { wallet: { id: wallet.id } },
+            where: { walletId: wallet.id },
             order: { createdAt: 'DESC' },
             skip: (page - 1) * limit,
             take: limit,

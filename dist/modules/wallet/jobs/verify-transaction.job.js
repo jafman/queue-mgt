@@ -22,37 +22,45 @@ const transaction_entity_1 = require("../entities/transaction.entity");
 const paystack_service_1 = require("../paystack.service");
 const wallet_service_1 = require("../wallet.service");
 const typeorm_3 = require("typeorm");
+const wallet_entity_1 = require("../entities/wallet.entity");
 let VerifyTransactionJob = VerifyTransactionJob_1 = class VerifyTransactionJob {
     transactionRepository;
     paystackService;
     walletService;
+    walletRepository;
     logger = new common_1.Logger(VerifyTransactionJob_1.name);
     MAX_ATTEMPTS = 20;
     POLL_INTERVAL = 30000;
-    constructor(transactionRepository, paystackService, walletService) {
+    constructor(transactionRepository, paystackService, walletService, walletRepository) {
         this.transactionRepository = transactionRepository;
         this.paystackService = paystackService;
         this.walletService = walletService;
+        this.walletRepository = walletRepository;
     }
     async handleVerification() {
         const pendingTransactions = await this.transactionRepository.find({
-            where: {
-                status: transaction_entity_1.TransactionStatus.PENDING,
-                reference: (0, typeorm_3.Not)((0, typeorm_3.IsNull)()),
-            },
-            relations: ['wallet'],
+            where: [
+                {
+                    status: transaction_entity_1.TransactionStatus.PENDING,
+                    reference: (0, typeorm_3.Not)((0, typeorm_3.IsNull)()),
+                },
+                {
+                    status: transaction_entity_1.TransactionStatus.ABANDONED,
+                    reference: (0, typeorm_3.Not)((0, typeorm_3.IsNull)()),
+                }
+            ],
         });
-        console.log('Pending transactions:', pendingTransactions.length);
+        console.log('Pending transactions:', pendingTransactions);
         for (const transaction of pendingTransactions) {
             console.log('Verifying transaction...', transaction.reference);
             try {
-                if (!transaction.wallet) {
-                    this.logger.error(`Transaction ${transaction.reference} has no associated wallet`);
+                if (!transaction.walletId) {
+                    this.logger.error(`Transaction ${transaction.reference} has no associated walletId`);
                     continue;
                 }
                 const verification = await this.paystackService.verifyTransaction(transaction.reference);
                 const status = verification.data.status;
-                console.log({ verificationData: verification.data });
+                console.log('Verification response:', verification.data);
                 let newStatus;
                 switch (status) {
                     case 'success':
@@ -70,13 +78,26 @@ let VerifyTransactionJob = VerifyTransactionJob_1 = class VerifyTransactionJob {
                     default:
                         newStatus = transaction_entity_1.TransactionStatus.PENDING;
                 }
-                transaction.status = newStatus;
-                await this.transactionRepository.save(transaction);
-                if (newStatus === transaction_entity_1.TransactionStatus.SUCCESS) {
-                    const wallet = await this.walletService.getOrCreateWallet(transaction.wallet.userId, transaction.wallet.userType);
-                    wallet.balance += transaction.amount;
-                    await this.walletService.updateWalletBalance(wallet);
-                }
+                await this.transactionRepository.manager.transaction(async (manager) => {
+                    transaction.status = newStatus;
+                    await manager.save(transaction);
+                    if (newStatus === transaction_entity_1.TransactionStatus.SUCCESS) {
+                        const wallet = await manager.findOne(wallet_entity_1.Wallet, { where: { id: transaction.walletId } });
+                        if (wallet) {
+                            console.log('Updating wallet balance:', {
+                                walletId: wallet.id,
+                                currentBalance: wallet.balance,
+                                amount: transaction.amount,
+                                newBalance: Number(wallet.balance) + Number(transaction.amount)
+                            });
+                            wallet.balance = Number(wallet.balance) + Number(transaction.amount);
+                            await manager.save(wallet);
+                        }
+                        else {
+                            this.logger.error(`Wallet not found for transaction ${transaction.reference}`);
+                        }
+                    }
+                });
                 this.logger.log(`Transaction ${transaction.reference} status updated to ${newStatus}`);
             }
             catch (error) {
@@ -95,8 +116,10 @@ __decorate([
 exports.VerifyTransactionJob = VerifyTransactionJob = VerifyTransactionJob_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(transaction_entity_1.Transaction)),
+    __param(3, (0, typeorm_1.InjectRepository)(wallet_entity_1.Wallet)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         paystack_service_1.PaystackService,
-        wallet_service_1.WalletService])
+        wallet_service_1.WalletService,
+        typeorm_2.Repository])
 ], VerifyTransactionJob);
 //# sourceMappingURL=verify-transaction.job.js.map

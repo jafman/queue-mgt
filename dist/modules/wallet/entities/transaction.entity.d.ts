@@ -1,4 +1,3 @@
-import { Wallet } from './wallet.entity';
 export declare enum TransactionType {
     CREDIT = "credit",
     DEBIT = "debit"
@@ -22,6 +21,6 @@ export declare class Transaction {
     reference: string;
     relatedTransactionId: string;
     relatedUserId: string;
-    wallet: Wallet;
+    walletId: string;
     createdAt: Date;
 }

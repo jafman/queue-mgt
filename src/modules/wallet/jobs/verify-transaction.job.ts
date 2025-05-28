@@ -6,6 +6,7 @@ import { Transaction, TransactionStatus, TransactionType } from '../entities/tra
 import { PaystackService } from '../paystack.service';
 import { WalletService } from '../wallet.service';
 import { Not, IsNull } from 'typeorm';
+import { Wallet } from '../entities/wallet.entity';
 
 @Injectable()
 export class VerifyTransactionJob {
@@ -18,30 +19,38 @@ export class VerifyTransactionJob {
     private transactionRepository: Repository<Transaction>,
     private paystackService: PaystackService,
     private walletService: WalletService,
+    @InjectRepository(Wallet)
+    private walletRepository: Repository<Wallet>,
   ) {}
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   async handleVerification() {
     // console.log('Verifying transactions...');
     const pendingTransactions = await this.transactionRepository.find({
-      where: {
-        status: TransactionStatus.PENDING,
-        reference: Not(IsNull()),
-      },
-      relations: ['wallet'],
+      where: [
+        {
+          status: TransactionStatus.PENDING,
+          reference: Not(IsNull()),
+        },
+        {
+          status: TransactionStatus.ABANDONED,
+          reference: Not(IsNull()),
+        }
+      ],
     });
-    console.log('Pending transactions:', pendingTransactions.length);
+    console.log('Pending transactions:', pendingTransactions);
     for (const transaction of pendingTransactions) {
       console.log('Verifying transaction...', transaction.reference);
       try {
-        if (!transaction.wallet) {
-          this.logger.error(`Transaction ${transaction.reference} has no associated wallet`);
+        if (!transaction.walletId) {
+          this.logger.error(`Transaction ${transaction.reference} has no associated walletId`);
           continue;
         }
 
         const verification = await this.paystackService.verifyTransaction(transaction.reference);
         const status = verification.data.status;
-        console.log({verificationData: verification.data})
+        console.log('Verification response:', verification.data);
+
         // Map Paystack status to our TransactionStatus
         let newStatus: TransactionStatus;
         switch (status) {
@@ -61,19 +70,30 @@ export class VerifyTransactionJob {
             newStatus = TransactionStatus.PENDING;
         }
 
-        // Update transaction status
-        transaction.status = newStatus;
-        await this.transactionRepository.save(transaction);
+        // Update transaction status and wallet balance in a transaction
+        await this.transactionRepository.manager.transaction(async (manager) => {
+          // Update transaction status
+          transaction.status = newStatus;
+          await manager.save(transaction);
 
-        // If transaction is successful, update wallet balance
-        if (newStatus === TransactionStatus.SUCCESS) {
-          const wallet = await this.walletService.getOrCreateWallet(
-            transaction.wallet.userId,
-            transaction.wallet.userType
-          );
-          wallet.balance += transaction.amount;
-          await this.walletService.updateWalletBalance(wallet);
-        }
+          // If transaction is successful, update wallet balance
+          if (newStatus === TransactionStatus.SUCCESS) {
+            const wallet = await manager.findOne(Wallet, { where: { id: transaction.walletId } });
+            if (wallet) {
+              console.log('Updating wallet balance:', {
+                walletId: wallet.id,
+                currentBalance: wallet.balance,
+                amount: transaction.amount,
+                newBalance: Number(wallet.balance) + Number(transaction.amount)
+              });
+              
+              wallet.balance = Number(wallet.balance) + Number(transaction.amount);
+              await manager.save(wallet);
+            } else {
+              this.logger.error(`Wallet not found for transaction ${transaction.reference}`);
+            }
+          }
+        });
 
         this.logger.log(`Transaction ${transaction.reference} status updated to ${newStatus}`);
       } catch (error) {
