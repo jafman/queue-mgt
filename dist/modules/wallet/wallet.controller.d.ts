@@ -15,6 +15,10 @@ export declare class WalletController {
     getTransactionHistory(req: any, page?: number, limit?: number): Promise<{
         transactions: Transaction[];
         total: number;
+        currentPage: number;
+        totalPages: number;
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
     }>;
     initializeFunding(req: any, initializeFundingDto: InitializeWalletFundingDto): Promise<{
         access_code: any;

@@ -135,7 +135,17 @@ let WalletService = class WalletService {
             skip: (page - 1) * limit,
             take: limit,
         });
-        return { transactions, total };
+        const totalPages = Math.ceil(total / limit);
+        const hasNextPage = page < totalPages;
+        const hasPreviousPage = page > 1;
+        return {
+            transactions,
+            total,
+            currentPage: page,
+            totalPages,
+            hasNextPage,
+            hasPreviousPage
+        };
     }
     async updateWalletBalance(wallet) {
         return this.walletRepository.save(wallet);

@@ -185,7 +185,28 @@ export class WalletController {
         },
         total: {
           type: 'number',
-          example: 50
+          example: 50,
+          description: 'Total number of transactions'
+        },
+        currentPage: {
+          type: 'number',
+          example: 1,
+          description: 'Current page number'
+        },
+        totalPages: {
+          type: 'number',
+          example: 5,
+          description: 'Total number of pages'
+        },
+        hasNextPage: {
+          type: 'boolean',
+          example: true,
+          description: 'Whether there is a next page'
+        },
+        hasPreviousPage: {
+          type: 'boolean',
+          example: false,
+          description: 'Whether there is a previous page'
         }
       }
     }

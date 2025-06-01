@@ -25,6 +25,10 @@ export declare class WalletService {
     getTransactionHistory(userId: string, userType: string, page?: number, limit?: number): Promise<{
         transactions: Transaction[];
         total: number;
+        currentPage: number;
+        totalPages: number;
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
     }>;
     updateWalletBalance(wallet: Wallet): Promise<Wallet>;
 }

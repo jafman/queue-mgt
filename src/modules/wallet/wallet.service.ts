@@ -151,7 +151,14 @@ export class WalletService {
     userType: string,
     page: number = 1,
     limit: number = 10,
-  ): Promise<{ transactions: Transaction[]; total: number }> {
+  ): Promise<{ 
+    transactions: Transaction[]; 
+    total: number;
+    currentPage: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  }> {
     const wallet = await this.getOrCreateWallet(userId, userType);
 
     const [transactions, total] = await this.transactionRepository.findAndCount({
@@ -161,7 +168,18 @@ export class WalletService {
       take: limit,
     });
 
-    return { transactions, total };
+    const totalPages = Math.ceil(total / limit);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
+
+    return { 
+      transactions, 
+      total,
+      currentPage: page,
+      totalPages,
+      hasNextPage,
+      hasPreviousPage
+    };
   }
 
   async updateWalletBalance(wallet: Wallet) {
