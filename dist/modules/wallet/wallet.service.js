@@ -176,6 +176,9 @@ let WalletService = class WalletService {
         if (!recipient) {
             throw new common_1.NotFoundException('Recipient not found');
         }
+        if (recipient.id === senderId) {
+            throw new common_1.BadRequestException('Cannot transfer to yourself');
+        }
         const recipientWallet = await this.getOrCreateWallet(recipient.id, createTransferDto.recipientType);
         if (senderWallet.balance < createTransferDto.amount) {
             throw new common_1.BadRequestException('Insufficient balance');

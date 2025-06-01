@@ -225,6 +225,11 @@ export class WalletService {
       throw new NotFoundException('Recipient not found');
     }
 
+    // Prevent self-transfer
+    if (recipient.id === senderId) {
+      throw new BadRequestException('Cannot transfer to yourself');
+    }
+
     // Get or create recipient's wallet
     const recipientWallet = await this.getOrCreateWallet(
       recipient.id,
