@@ -9,6 +9,7 @@ import { Role } from '../../auth/enums/role.enum';
 import { PaystackService } from './paystack.service';
 import { InitializeWalletFundingDto } from './dto/initialize-wallet-funding.dto';
 import { Transaction, TransactionType, TransactionStatus } from './entities/transaction.entity';
+import { CreateTransferDto } from './dto/create-transfer.dto';
 
 @ApiTags('Wallet')
 @Controller('wallet')
@@ -298,5 +299,70 @@ export class WalletController {
       reference: paystackResponse.data.reference,
       authorization_url: paystackResponse.data.authorization_url,
     };
+  }
+
+  @Post('transfer')
+  @Roles(Role.STUDENT)
+  @ApiOperation({ summary: 'Transfer funds to another user' })
+  @ApiResponse({
+    status: 201,
+    description: 'Transfer successful',
+    schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        },
+        amount: {
+          type: 'number',
+          example: 100.50
+        },
+        type: {
+          type: 'string',
+          enum: ['debit'],
+          example: 'debit'
+        },
+        description: {
+          type: 'string',
+          example: 'Transfer to john.doe'
+        },
+        relatedUserId: {
+          type: 'string',
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        },
+        createdAt: {
+          type: 'string',
+          format: 'date-time',
+          example: '2024-03-19T12:00:00Z'
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Insufficient balance or invalid transfer details'
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing JWT token'
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User does not have required role'
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found - Recipient not found'
+  })
+  async transfer(
+    @Request() req,
+    @Body() createTransferDto: CreateTransferDto,
+  ) {
+    return this.walletService.transfer(
+      req.user.id,
+      req.user.role,
+      createTransferDto,
+    );
   }
 } 

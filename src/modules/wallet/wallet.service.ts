@@ -9,6 +9,7 @@ import { VendorService } from '../users/vendor/vendor.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { Student } from '../users/entities/student.entity';
 import { Vendor } from '../users/entities/vendor.entity';
+import { CreateTransferDto, RecipientType } from './dto/create-transfer.dto';
 
 @Injectable()
 export class WalletService {
@@ -184,5 +185,87 @@ export class WalletService {
 
   async updateWalletBalance(wallet: Wallet) {
     return this.walletRepository.save(wallet);
+  }
+
+  async transfer(
+    senderId: string,
+    senderType: string,
+    createTransferDto: CreateTransferDto,
+  ): Promise<Transaction> {
+    // Only students can transfer
+    if (senderType !== 'student') {
+      throw new BadRequestException('Only students can make transfers');
+    }
+
+    // Get sender's wallet
+    const senderWallet = await this.getOrCreateWallet(senderId, senderType);
+
+    // Get sender's information
+    const sender = await this.studentRepository.findOne({
+      where: { id: senderId }
+    });
+
+    if (!sender) {
+      throw new NotFoundException('Sender not found');
+    }
+
+    // Find recipient based on username and type
+    let recipient: Student | Vendor | null;
+    if (createTransferDto.recipientType === RecipientType.STUDENT) {
+      recipient = await this.studentRepository.findOne({
+        where: { username: createTransferDto.recipientUsername }
+      });
+    } else {
+      recipient = await this.vendorRepository.findOne({
+        where: { username: createTransferDto.recipientUsername }
+      });
+    }
+
+    if (!recipient) {
+      throw new NotFoundException('Recipient not found');
+    }
+
+    // Get or create recipient's wallet
+    const recipientWallet = await this.getOrCreateWallet(
+      recipient.id,
+      createTransferDto.recipientType
+    );
+
+    // Check if there's sufficient balance
+    if (senderWallet.balance < createTransferDto.amount) {
+      throw new BadRequestException('Insufficient balance');
+    }
+
+    // Create debit transaction for sender
+    const senderTransaction = this.transactionRepository.create({
+      amount: createTransferDto.amount,
+      type: TransactionType.DEBIT,
+      description: `Transfer to ${createTransferDto.recipientUsername}`,
+      walletId: senderWallet.id,
+      relatedUserId: recipient.id,
+    });
+
+    // Create credit transaction for recipient
+    const recipientTransaction = this.transactionRepository.create({
+      amount: createTransferDto.amount,
+      type: TransactionType.CREDIT,
+      description: `Transfer from ${sender.username}`,
+      walletId: recipientWallet.id,
+      relatedUserId: senderId,
+    });
+
+    // Update balances
+    senderWallet.balance -= createTransferDto.amount;
+    recipientWallet.balance += createTransferDto.amount;
+
+    // Save everything in a transaction
+    await this.transactionRepository.manager.transaction(async (manager) => {
+      await manager.save(senderTransaction);
+      await manager.save(recipientTransaction);
+      await manager.save(senderWallet);
+      await manager.save(recipientWallet);
+    });
+
+    return senderTransaction;
   }
 } 

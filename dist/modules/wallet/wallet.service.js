@@ -23,6 +23,7 @@ const vendor_service_1 = require("../users/vendor/vendor.service");
 const auth_service_1 = require("../../auth/services/auth.service");
 const student_entity_1 = require("../users/entities/student.entity");
 const vendor_entity_1 = require("../users/entities/vendor.entity");
+const create_transfer_dto_1 = require("./dto/create-transfer.dto");
 let WalletService = class WalletService {
     walletRepository;
     transactionRepository;
@@ -149,6 +150,59 @@ let WalletService = class WalletService {
     }
     async updateWalletBalance(wallet) {
         return this.walletRepository.save(wallet);
+    }
+    async transfer(senderId, senderType, createTransferDto) {
+        if (senderType !== 'student') {
+            throw new common_1.BadRequestException('Only students can make transfers');
+        }
+        const senderWallet = await this.getOrCreateWallet(senderId, senderType);
+        const sender = await this.studentRepository.findOne({
+            where: { id: senderId }
+        });
+        if (!sender) {
+            throw new common_1.NotFoundException('Sender not found');
+        }
+        let recipient;
+        if (createTransferDto.recipientType === create_transfer_dto_1.RecipientType.STUDENT) {
+            recipient = await this.studentRepository.findOne({
+                where: { username: createTransferDto.recipientUsername }
+            });
+        }
+        else {
+            recipient = await this.vendorRepository.findOne({
+                where: { username: createTransferDto.recipientUsername }
+            });
+        }
+        if (!recipient) {
+            throw new common_1.NotFoundException('Recipient not found');
+        }
+        const recipientWallet = await this.getOrCreateWallet(recipient.id, createTransferDto.recipientType);
+        if (senderWallet.balance < createTransferDto.amount) {
+            throw new common_1.BadRequestException('Insufficient balance');
+        }
+        const senderTransaction = this.transactionRepository.create({
+            amount: createTransferDto.amount,
+            type: transaction_entity_1.TransactionType.DEBIT,
+            description: `Transfer to ${createTransferDto.recipientUsername}`,
+            walletId: senderWallet.id,
+            relatedUserId: recipient.id,
+        });
+        const recipientTransaction = this.transactionRepository.create({
+            amount: createTransferDto.amount,
+            type: transaction_entity_1.TransactionType.CREDIT,
+            description: `Transfer from ${sender.username}`,
+            walletId: recipientWallet.id,
+            relatedUserId: senderId,
+        });
+        senderWallet.balance -= createTransferDto.amount;
+        recipientWallet.balance += createTransferDto.amount;
+        await this.transactionRepository.manager.transaction(async (manager) => {
+            await manager.save(senderTransaction);
+            await manager.save(recipientTransaction);
+            await manager.save(senderWallet);
+            await manager.save(recipientWallet);
+        });
+        return senderTransaction;
     }
 };
 exports.WalletService = WalletService;

@@ -7,6 +7,7 @@ import { VendorService } from '../users/vendor/vendor.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { Student } from '../users/entities/student.entity';
 import { Vendor } from '../users/entities/vendor.entity';
+import { CreateTransferDto } from './dto/create-transfer.dto';
 export declare class WalletService {
     private walletRepository;
     private transactionRepository;
@@ -31,4 +32,5 @@ export declare class WalletService {
         hasPreviousPage: boolean;
     }>;
     updateWalletBalance(wallet: Wallet): Promise<Wallet>;
+    transfer(senderId: string, senderType: string, createTransferDto: CreateTransferDto): Promise<Transaction>;
 }

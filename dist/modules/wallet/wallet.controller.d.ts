@@ -3,6 +3,7 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { PaystackService } from './paystack.service';
 import { InitializeWalletFundingDto } from './dto/initialize-wallet-funding.dto';
 import { Transaction } from './entities/transaction.entity';
+import { CreateTransferDto } from './dto/create-transfer.dto';
 export declare class WalletController {
     private readonly walletService;
     private readonly paystackService;
@@ -25,4 +26,5 @@ export declare class WalletController {
         reference: any;
         authorization_url: any;
     }>;
+    transfer(req: any, createTransferDto: CreateTransferDto): Promise<Transaction>;
 }

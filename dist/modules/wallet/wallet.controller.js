@@ -24,6 +24,7 @@ const role_enum_1 = require("../../auth/enums/role.enum");
 const paystack_service_1 = require("./paystack.service");
 const initialize_wallet_funding_dto_1 = require("./dto/initialize-wallet-funding.dto");
 const transaction_entity_1 = require("./entities/transaction.entity");
+const create_transfer_dto_1 = require("./dto/create-transfer.dto");
 let WalletController = class WalletController {
     walletService;
     paystackService;
@@ -55,6 +56,9 @@ let WalletController = class WalletController {
             reference: paystackResponse.data.reference,
             authorization_url: paystackResponse.data.authorization_url,
         };
+    }
+    async transfer(req, createTransferDto) {
+        return this.walletService.transfer(req.user.id, req.user.role, createTransferDto);
     }
 };
 exports.WalletController = WalletController;
@@ -306,6 +310,67 @@ __decorate([
     __metadata("design:paramtypes", [Object, initialize_wallet_funding_dto_1.InitializeWalletFundingDto]),
     __metadata("design:returntype", Promise)
 ], WalletController.prototype, "initializeFunding", null);
+__decorate([
+    (0, common_1.Post)('transfer'),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.STUDENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Transfer funds to another user' }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Transfer successful',
+        schema: {
+            type: 'object',
+            properties: {
+                id: {
+                    type: 'string',
+                    example: '123e4567-e89b-12d3-a456-426614174000'
+                },
+                amount: {
+                    type: 'number',
+                    example: 100.50
+                },
+                type: {
+                    type: 'string',
+                    enum: ['debit'],
+                    example: 'debit'
+                },
+                description: {
+                    type: 'string',
+                    example: 'Transfer to john.doe'
+                },
+                relatedUserId: {
+                    type: 'string',
+                    example: '123e4567-e89b-12d3-a456-426614174000'
+                },
+                createdAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2024-03-19T12:00:00Z'
+                }
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Bad Request - Insufficient balance or invalid transfer details'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing JWT token'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden - User does not have required role'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Not Found - Recipient not found'
+    }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, create_transfer_dto_1.CreateTransferDto]),
+    __metadata("design:returntype", Promise)
+], WalletController.prototype, "transfer", null);
 exports.WalletController = WalletController = __decorate([
     (0, swagger_1.ApiTags)('Wallet'),
     (0, common_1.Controller)('wallet'),
