@@ -6,7 +6,14 @@ export declare class AdminAuthController {
     private adminService;
     constructor(authService: AuthService, adminService: AdminService);
     login(loginDto: LoginDto): Promise<{
+        message: string;
+        requiresPasswordReset: boolean;
+        access_token?: undefined;
+        user?: undefined;
+    } | {
         access_token: string;
         user: any;
+        message?: undefined;
+        requiresPasswordReset?: undefined;
     }>;
 }

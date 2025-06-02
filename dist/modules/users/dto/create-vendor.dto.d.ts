@@ -1,4 +1,4 @@
-import { BusinessCategory } from '../entities/vendor.entity';
+import { BusinessCategory } from '../enums/business-category.enum';
 export declare class CreateVendorDto {
     username: string;
     name: string;

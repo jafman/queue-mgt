@@ -6,7 +6,14 @@ export declare class VendorAuthController {
     private vendorService;
     constructor(authService: AuthService, vendorService: VendorService);
     login(loginDto: LoginDto): Promise<{
+        message: string;
+        requiresPasswordReset: boolean;
+        access_token?: undefined;
+        user?: undefined;
+    } | {
         access_token: string;
         user: any;
+        message?: undefined;
+        requiresPasswordReset?: undefined;
     }>;
 }

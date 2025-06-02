@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsEmail, IsOptional, MinLength, IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { BusinessCategory } from '../entities/vendor.entity';
+import { BusinessCategory } from '../enums/business-category.enum';
 
 export class CreateVendorDto {
   @ApiProperty({

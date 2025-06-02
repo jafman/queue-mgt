@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateVendorDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
-const vendor_entity_1 = require("../entities/vendor.entity");
+const business_category_enum_1 = require("../enums/business-category.enum");
 class CreateVendorDto {
     username;
     name;
@@ -52,10 +52,10 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Business category',
-        enum: vendor_entity_1.BusinessCategory,
-        example: vendor_entity_1.BusinessCategory.FOOD_AND_NUTRITION
+        enum: business_category_enum_1.BusinessCategory,
+        example: business_category_enum_1.BusinessCategory.FOOD_AND_NUTRITION
     }),
-    (0, class_validator_1.IsEnum)(vendor_entity_1.BusinessCategory),
+    (0, class_validator_1.IsEnum)(business_category_enum_1.BusinessCategory),
     __metadata("design:type", String)
 ], CreateVendorDto.prototype, "business_category", void 0);
 __decorate([

@@ -36,7 +36,7 @@ export class VendorController {
     status: 403,
     description: 'Forbidden - User does not have admin role'
   })
-  async create(@Body() createVendorDto: CreateVendorDto): Promise<Vendor> {
+  async create(@Body() createVendorDto: CreateVendorDto): Promise<Omit<Vendor, 'password'>> {
     return this.vendorService.create(createVendorDto);
   }
 } 

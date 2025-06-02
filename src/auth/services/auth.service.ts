@@ -44,6 +44,14 @@ export class AuthService {
       throw new UnauthorizedException('Invalid user type');
     }
 
+    // Special handling for first-time vendor login
+    if (userType === 'vendor' && user.firstTimeLogin) {
+      return {
+        message: 'Please reset your password before proceeding',
+        requiresPasswordReset: true
+      };
+    }
+
     const payload = { 
       username: user.username, 
       sub: user.id,

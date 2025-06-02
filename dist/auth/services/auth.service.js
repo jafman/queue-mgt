@@ -50,6 +50,12 @@ let AuthService = class AuthService {
         else {
             throw new common_1.UnauthorizedException('Invalid user type');
         }
+        if (userType === 'vendor' && user.firstTimeLogin) {
+            return {
+                message: 'Please reset your password before proceeding',
+                requiresPasswordReset: true
+            };
+        }
         const payload = {
             username: user.username,
             sub: user.id,

@@ -19,6 +19,7 @@ const typeorm_2 = require("typeorm");
 const vendor_entity_1 = require("../entities/vendor.entity");
 const mailer_service_1 = require("../../../mailer/mailer.service");
 const crypto = require("crypto");
+const bcrypt = require("bcrypt");
 let VendorService = class VendorService {
     vendorRepository;
     mailerService;
@@ -28,6 +29,10 @@ let VendorService = class VendorService {
     }
     generatePassword() {
         return crypto.randomBytes(4).toString('hex').toUpperCase();
+    }
+    async hashPassword(password) {
+        const salt = await bcrypt.genSalt();
+        return bcrypt.hash(password, salt);
     }
     async findByUsername(username) {
         return this.vendorRepository.findOne({ where: { username } });
@@ -42,16 +47,28 @@ let VendorService = class VendorService {
     }
     async create(createVendorDto) {
         const existingVendor = await this.vendorRepository.findOne({
-            where: { username: createVendorDto.username }
+            where: [
+                { username: createVendorDto.username },
+                { email: createVendorDto.email },
+                { phone: createVendorDto.phone }
+            ]
         });
         if (existingVendor) {
-            throw new common_1.ConflictException('Username already exists');
+            if (existingVendor.username === createVendorDto.username) {
+                throw new common_1.ConflictException('Username already exists');
+            }
+            if (existingVendor.email === createVendorDto.email) {
+                throw new common_1.ConflictException('Email already exists');
+            }
+            if (existingVendor.phone === createVendorDto.phone) {
+                throw new common_1.ConflictException('Phone number already exists');
+            }
         }
-        const password = this.generatePassword();
-        console.log({ password });
+        const plainPassword = this.generatePassword();
+        console.log({ plainPassword });
         const vendor = this.vendorRepository.create({
             ...createVendorDto,
-            password,
+            password: await this.hashPassword(plainPassword),
             firstTimeLogin: true
         });
         const savedVendor = await this.vendorRepository.save(vendor);
@@ -62,11 +79,12 @@ let VendorService = class VendorService {
             html: `
         <p>Hi, ${savedVendor.name}</p>
         <p>You have been invited to join QUICKP as a vendor. Your Account has been created and added to the platform.</p>
-        <p>Login to the app <a href="https://www.quickp.com.ng/">https://www.quickp.com.ng/</a> using the following password: <strong>${password}</strong></p>
+        <p>Login to the app <a href="https://www.quickp.com.ng/">https://www.quickp.com.ng/</a> using the following password: <strong>${plainPassword}</strong></p>
       `,
-            text: `Hi, ${savedVendor.name}. You have been invited to join QUICKP as a vendor. Your Account has been created and added to the platform. Login to the app https://www.quickp.com.ng/ using the following password: ${password}`
+            text: `Hi, ${savedVendor.name}. You have been invited to join QUICKP as a vendor. Your Account has been created and added to the platform. Login to the app https://www.quickp.com.ng/ using the following password: ${plainPassword}`
         });
-        return savedVendor;
+        const { password: _, ...vendorWithoutPassword } = savedVendor;
+        return vendorWithoutPassword;
     }
     async updatePassword(id, hashedPassword) {
         await this.vendorRepository.update(id, { password: hashedPassword });

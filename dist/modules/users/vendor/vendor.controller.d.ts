@@ -4,5 +4,5 @@ import { Vendor } from '../entities/vendor.entity';
 export declare class VendorController {
     private readonly vendorService;
     constructor(vendorService: VendorService);
-    create(createVendorDto: CreateVendorDto): Promise<Vendor>;
+    create(createVendorDto: CreateVendorDto): Promise<Omit<Vendor, 'password'>>;
 }
