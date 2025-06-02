@@ -51,7 +51,8 @@ let WalletService = class WalletService {
                 userType,
                 balance: 0,
             });
-            await this.walletRepository.save(wallet);
+            wallet = await this.walletRepository.save(wallet);
+            console.log('Created new wallet:', { userId, userType, walletId: wallet.id });
         }
         return wallet;
     }
@@ -183,6 +184,11 @@ let WalletService = class WalletService {
         if (senderWallet.balance < createTransferDto.amount) {
             throw new common_1.BadRequestException('Insufficient balance');
         }
+        console.log('Before transfer:', {
+            senderBalance: senderWallet.balance,
+            recipientBalance: recipientWallet.balance,
+            amount: createTransferDto.amount
+        });
         const senderTransaction = this.transactionRepository.create({
             amount: createTransferDto.amount,
             type: transaction_entity_1.TransactionType.DEBIT,
@@ -197,15 +203,34 @@ let WalletService = class WalletService {
             walletId: recipientWallet.id,
             relatedUserId: senderId,
         });
-        senderWallet.balance -= createTransferDto.amount;
-        recipientWallet.balance += createTransferDto.amount;
-        await this.transactionRepository.manager.transaction(async (manager) => {
-            await manager.save(senderTransaction);
+        senderWallet.balance = Number(senderWallet.balance) - Number(createTransferDto.amount);
+        recipientWallet.balance = Number(recipientWallet.balance) + Number(createTransferDto.amount);
+        console.log('After balance update:', {
+            senderBalance: senderWallet.balance,
+            recipientBalance: recipientWallet.balance
+        });
+        const result = await this.transactionRepository.manager.transaction(async (manager) => {
+            const savedSenderTransaction = await manager.save(senderTransaction);
             await manager.save(recipientTransaction);
             await manager.save(senderWallet);
             await manager.save(recipientWallet);
+            return savedSenderTransaction;
         });
-        return senderTransaction;
+        const updatedSenderWallet = await this.walletRepository.findOne({
+            where: { id: senderWallet.id }
+        });
+        const updatedRecipientWallet = await this.walletRepository.findOne({
+            where: { id: recipientWallet.id }
+        });
+        if (!updatedSenderWallet || !updatedRecipientWallet) {
+            throw new Error('Failed to verify wallet updates');
+        }
+        console.log('Transfer completed:', {
+            senderBalance: updatedSenderWallet.balance,
+            recipientBalance: updatedRecipientWallet.balance,
+            amount: createTransferDto.amount
+        });
+        return result;
     }
     async validateUsername(username) {
         const student = await this.studentRepository.findOne({
