@@ -1,14 +1,21 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../enums/role.enum';
 import { Admin } from '../../modules/users/entities/admin.entity';
 import { Student } from '../../modules/users/entities/student.entity';
 import { Vendor } from '../../modules/users/entities/vendor.entity';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { VendorService } from '../../modules/users/vendor/vendor.service';
+import { StudentService } from '../../modules/users/student/student.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private studentService: StudentService,
+    private vendorService: VendorService,
+  ) {}
 
   async validateUser(username: string, password: string, user: any): Promise<any> {
     if (!user) {
@@ -52,6 +59,50 @@ export class AuthService {
         ...userData,
         role: role
       }
+    };
+  }
+
+  async resetPassword(userType: string, resetPasswordDto: ResetPasswordDto) {
+    let user: any;
+    let service: StudentService | VendorService;
+
+    // Determine which service to use based on user type
+    switch (userType.toLowerCase()) {
+      case 'student':
+        service = this.studentService;
+        break;
+      case 'vendor':
+        service = this.vendorService;
+        break;
+      default:
+        throw new BadRequestException('Invalid user type');
+    }
+
+    // Find user by username or email
+    user = await service.findByUsernameOrEmail(resetPasswordDto.identifier);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Verify old password
+    const isPasswordValid = await bcrypt.compare(resetPasswordDto.oldPassword, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
+
+    // Update password
+    await service.updatePassword(user.id, hashedPassword);
+
+    // If it's a vendor's first login, update firstTimeLogin flag
+    if (userType.toLowerCase() === 'vendor' && user.firstTimeLogin) {
+      await this.vendorService.updateFirstTimeLogin(user.id, false);
+    }
+
+    return {
+      message: 'Password reset successful'
     };
   }
 } 

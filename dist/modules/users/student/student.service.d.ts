@@ -18,4 +18,5 @@ export declare class StudentService {
     findByStudentIdOrEmail(identifier: string): Promise<Student | null>;
     findByUsernameOrEmail(identifier: string): Promise<Student | null>;
     findAll(paginationDto: PaginationDto): Promise<StudentListResponseDto>;
+    updatePassword(id: string, hashedPassword: string): Promise<void>;
 }

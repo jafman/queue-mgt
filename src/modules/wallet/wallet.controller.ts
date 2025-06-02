@@ -56,71 +56,71 @@ export class WalletController {
     );
   }
 
-  @Post('transactions')
-  @Roles(Role.STUDENT, Role.VENDOR)
-  @ApiOperation({ summary: 'Create a new transaction' })
-  @ApiResponse({
-    status: 201,
-    description: 'Transaction created successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string',
-          example: '123e4567-e89b-12d3-a456-426614174000'
-        },
-        amount: {
-          type: 'number',
-          example: 100.50
-        },
-        type: {
-          type: 'string',
-          enum: ['credit', 'debit'],
-          example: 'credit'
-        },
-        description: {
-          type: 'string',
-          example: 'Payment for lunch'
-        },
-        reference: {
-          type: 'string',
-          example: 'TRX123456'
-        },
-        relatedUserId: {
-          type: 'string',
-          example: '123e4567-e89b-12d3-a456-426614174000',
-          nullable: true
-        },
-        createdAt: {
-          type: 'string',
-          format: 'date-time',
-          example: '2024-03-19T12:00:00Z'
-        }
-      }
-    }
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request - Insufficient balance for debit transaction'
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - Invalid or missing JWT token'
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Forbidden - User does not have required role'
-  })
-  async createTransaction(
-    @Request() req,
-    @Body() createTransactionDto: CreateTransactionDto,
-  ) {
-    return this.walletService.createTransaction(
-      req.user.id,
-      req.user.role,
-      createTransactionDto,
-    );
-  }
+  // @Post('transactions')
+  // @Roles(Role.STUDENT, Role.VENDOR)
+  // @ApiOperation({ summary: 'Create a new transaction' })
+  // @ApiResponse({
+  //   status: 201,
+  //   description: 'Transaction created successfully',
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       id: {
+  //         type: 'string',
+  //         example: '123e4567-e89b-12d3-a456-426614174000'
+  //       },
+  //       amount: {
+  //         type: 'number',
+  //         example: 100.50
+  //       },
+  //       type: {
+  //         type: 'string',
+  //         enum: ['credit', 'debit'],
+  //         example: 'credit'
+  //       },
+  //       description: {
+  //         type: 'string',
+  //         example: 'Payment for lunch'
+  //       },
+  //       reference: {
+  //         type: 'string',
+  //         example: 'TRX123456'
+  //       },
+  //       relatedUserId: {
+  //         type: 'string',
+  //         example: '123e4567-e89b-12d3-a456-426614174000',
+  //         nullable: true
+  //       },
+  //       createdAt: {
+  //         type: 'string',
+  //         format: 'date-time',
+  //         example: '2024-03-19T12:00:00Z'
+  //       }
+  //     }
+  //   }
+  // })
+  // @ApiResponse({
+  //   status: 400,
+  //   description: 'Bad Request - Insufficient balance for debit transaction'
+  // })
+  // @ApiResponse({
+  //   status: 401,
+  //   description: 'Unauthorized - Invalid or missing JWT token'
+  // })
+  // @ApiResponse({
+  //   status: 403,
+  //   description: 'Forbidden - User does not have required role'
+  // })
+  // async createTransaction(
+  //   @Request() req,
+  //   @Body() createTransactionDto: CreateTransactionDto,
+  // ) {
+  //   return this.walletService.createTransaction(
+  //     req.user.id,
+  //     req.user.role,
+  //     createTransactionDto,
+  //   );
+  // }
 
   @Get('transactions')
   @Roles(Role.STUDENT, Role.VENDOR)

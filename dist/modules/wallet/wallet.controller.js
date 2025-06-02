@@ -16,7 +16,6 @@ exports.WalletController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const wallet_service_1 = require("./wallet.service");
-const create_transaction_dto_1 = require("./dto/create-transaction.dto");
 const jwt_auth_guard_1 = require("../../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../../auth/guards/roles.guard");
 const roles_decorator_1 = require("../../auth/decorators/roles.decorator");
@@ -34,9 +33,6 @@ let WalletController = class WalletController {
     }
     async getBalance(req) {
         return this.walletService.getWalletBalance(req.user.id, req.user.role);
-    }
-    async createTransaction(req, createTransactionDto) {
-        return this.walletService.createTransaction(req.user.id, req.user.role, createTransactionDto);
     }
     async getTransactionHistory(req, page = 1, limit = 10) {
         return this.walletService.getTransactionHistory(req.user.id, req.user.role, page, limit);
@@ -99,68 +95,6 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], WalletController.prototype, "getBalance", null);
-__decorate([
-    (0, common_1.Post)('transactions'),
-    (0, roles_decorator_1.Roles)(role_enum_1.Role.STUDENT, role_enum_1.Role.VENDOR),
-    (0, swagger_1.ApiOperation)({ summary: 'Create a new transaction' }),
-    (0, swagger_1.ApiResponse)({
-        status: 201,
-        description: 'Transaction created successfully',
-        schema: {
-            type: 'object',
-            properties: {
-                id: {
-                    type: 'string',
-                    example: '123e4567-e89b-12d3-a456-426614174000'
-                },
-                amount: {
-                    type: 'number',
-                    example: 100.50
-                },
-                type: {
-                    type: 'string',
-                    enum: ['credit', 'debit'],
-                    example: 'credit'
-                },
-                description: {
-                    type: 'string',
-                    example: 'Payment for lunch'
-                },
-                reference: {
-                    type: 'string',
-                    example: 'TRX123456'
-                },
-                relatedUserId: {
-                    type: 'string',
-                    example: '123e4567-e89b-12d3-a456-426614174000',
-                    nullable: true
-                },
-                createdAt: {
-                    type: 'string',
-                    format: 'date-time',
-                    example: '2024-03-19T12:00:00Z'
-                }
-            }
-        }
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 400,
-        description: 'Bad Request - Insufficient balance for debit transaction'
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 401,
-        description: 'Unauthorized - Invalid or missing JWT token'
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 403,
-        description: 'Forbidden - User does not have required role'
-    }),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, create_transaction_dto_1.CreateTransactionDto]),
-    __metadata("design:returntype", Promise)
-], WalletController.prototype, "createTransaction", null);
 __decorate([
     (0, common_1.Get)('transactions'),
     (0, roles_decorator_1.Roles)(role_enum_1.Role.STUDENT, role_enum_1.Role.VENDOR),

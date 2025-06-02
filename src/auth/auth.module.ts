@@ -9,6 +9,7 @@ import { AdminModule } from '../modules/users/admin/admin.module';
 import { VendorAuthController } from './controllers/vendor-auth.controller';
 import { StudentAuthController } from './controllers/student-auth.controller';
 import { AdminAuthController } from './controllers/admin-auth.controller';
+import { AuthController } from './controllers/auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
@@ -30,6 +31,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     VendorAuthController,
     StudentAuthController,
     AdminAuthController,
+    AuthController,
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],

@@ -123,6 +123,9 @@ let StudentService = class StudentService {
             totalPages: Math.ceil(total / limit),
         };
     }
+    async updatePassword(id, hashedPassword) {
+        await this.studentRepository.update(id, { password: hashedPassword });
+    }
 };
 exports.StudentService = StudentService;
 exports.StudentService = StudentService = __decorate([

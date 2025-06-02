@@ -135,4 +135,8 @@ export class StudentService {
       totalPages: Math.ceil(total / limit),
     };
   }
+
+  async updatePassword(id: string, hashedPassword: string): Promise<void> {
+    await this.studentRepository.update(id, { password: hashedPassword });
+  }
 } 

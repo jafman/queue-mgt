@@ -32,6 +32,14 @@ let VendorService = class VendorService {
     async findByUsername(username) {
         return this.vendorRepository.findOne({ where: { username } });
     }
+    async findByUsernameOrEmail(identifier) {
+        return this.vendorRepository.findOne({
+            where: [
+                { username: identifier },
+                { email: identifier }
+            ]
+        });
+    }
     async create(createVendorDto) {
         const existingVendor = await this.vendorRepository.findOne({
             where: { username: createVendorDto.username }
@@ -59,6 +67,12 @@ let VendorService = class VendorService {
             text: `Hi, ${savedVendor.name}. You have been invited to join QUICKP as a vendor. Your Account has been created and added to the platform. Login to the app https://www.quickp.com.ng/ using the following password: ${password}`
         });
         return savedVendor;
+    }
+    async updatePassword(id, hashedPassword) {
+        await this.vendorRepository.update(id, { password: hashedPassword });
+    }
+    async updateFirstTimeLogin(id, value) {
+        await this.vendorRepository.update(id, { firstTimeLogin: value });
     }
 };
 exports.VendorService = VendorService;

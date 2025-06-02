@@ -14,10 +14,16 @@ const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const bcrypt = require("bcrypt");
 const role_enum_1 = require("../enums/role.enum");
+const vendor_service_1 = require("../../modules/users/vendor/vendor.service");
+const student_service_1 = require("../../modules/users/student/student.service");
 let AuthService = class AuthService {
     jwtService;
-    constructor(jwtService) {
+    studentService;
+    vendorService;
+    constructor(jwtService, studentService, vendorService) {
         this.jwtService = jwtService;
+        this.studentService = studentService;
+        this.vendorService = vendorService;
     }
     async validateUser(username, password, user) {
         if (!user) {
@@ -58,10 +64,42 @@ let AuthService = class AuthService {
             }
         };
     }
+    async resetPassword(userType, resetPasswordDto) {
+        let user;
+        let service;
+        switch (userType.toLowerCase()) {
+            case 'student':
+                service = this.studentService;
+                break;
+            case 'vendor':
+                service = this.vendorService;
+                break;
+            default:
+                throw new common_1.BadRequestException('Invalid user type');
+        }
+        user = await service.findByUsernameOrEmail(resetPasswordDto.identifier);
+        if (!user) {
+            throw new common_1.UnauthorizedException('Invalid credentials');
+        }
+        const isPasswordValid = await bcrypt.compare(resetPasswordDto.oldPassword, user.password);
+        if (!isPasswordValid) {
+            throw new common_1.UnauthorizedException('Invalid credentials');
+        }
+        const hashedPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
+        await service.updatePassword(user.id, hashedPassword);
+        if (userType.toLowerCase() === 'vendor' && user.firstTimeLogin) {
+            await this.vendorService.updateFirstTimeLogin(user.id, false);
+        }
+        return {
+            message: 'Password reset successful'
+        };
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [jwt_1.JwtService])
+    __metadata("design:paramtypes", [jwt_1.JwtService,
+        student_service_1.StudentService,
+        vendor_service_1.VendorService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

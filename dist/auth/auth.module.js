@@ -18,6 +18,7 @@ const admin_module_1 = require("../modules/users/admin/admin.module");
 const vendor_auth_controller_1 = require("./controllers/vendor-auth.controller");
 const student_auth_controller_1 = require("./controllers/student-auth.controller");
 const admin_auth_controller_1 = require("./controllers/admin-auth.controller");
+const auth_controller_1 = require("./controllers/auth.controller");
 const jwt_strategy_1 = require("./strategies/jwt.strategy");
 let AuthModule = class AuthModule {
 };
@@ -42,6 +43,7 @@ exports.AuthModule = AuthModule = __decorate([
             vendor_auth_controller_1.VendorAuthController,
             student_auth_controller_1.StudentAuthController,
             admin_auth_controller_1.AdminAuthController,
+            auth_controller_1.AuthController,
         ],
         providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy],
         exports: [auth_service_1.AuthService],

@@ -8,5 +8,8 @@ export declare class VendorService {
     constructor(vendorRepository: Repository<Vendor>, mailerService: MailerService);
     private generatePassword;
     findByUsername(username: string): Promise<Vendor | null>;
+    findByUsernameOrEmail(identifier: string): Promise<Vendor | null>;
     create(createVendorDto: CreateVendorDto): Promise<Vendor>;
+    updatePassword(id: string, hashedPassword: string): Promise<void>;
+    updateFirstTimeLogin(id: string, value: boolean): Promise<void>;
 }

@@ -23,6 +23,15 @@ export class VendorService {
     return this.vendorRepository.findOne({ where: { username } });
   }
 
+  async findByUsernameOrEmail(identifier: string): Promise<Vendor | null> {
+    return this.vendorRepository.findOne({
+      where: [
+        { username: identifier },
+        { email: identifier }
+      ]
+    });
+  }
+
   async create(createVendorDto: CreateVendorDto): Promise<Vendor> {
     // Check if username already exists
     const existingVendor = await this.vendorRepository.findOne({
@@ -60,5 +69,13 @@ export class VendorService {
     });
 
     return savedVendor;
+  }
+
+  async updatePassword(id: string, hashedPassword: string): Promise<void> {
+    await this.vendorRepository.update(id, { password: hashedPassword });
+  }
+
+  async updateFirstTimeLogin(id: string, value: boolean): Promise<void> {
+    await this.vendorRepository.update(id, { firstTimeLogin: value });
   }
 } 
