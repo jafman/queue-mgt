@@ -28,8 +28,7 @@ export declare class WalletController {
     }>;
     transfer(req: any, createTransferDto: CreateTransferDto): Promise<Transaction>;
     validateUsername(username: string): Promise<{
-        firstName: string;
-        lastName: string;
+        fullName: string;
         userType: "student" | "vendor" | null;
         exists: boolean;
     }>;

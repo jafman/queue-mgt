@@ -213,8 +213,7 @@ let WalletService = class WalletService {
         });
         if (student) {
             return {
-                firstName: student.firstName,
-                lastName: student.lastName,
+                fullName: `${student.firstName} ${student.lastName}`.trim(),
                 userType: 'student',
                 exists: true
             };
@@ -224,15 +223,13 @@ let WalletService = class WalletService {
         });
         if (vendor) {
             return {
-                firstName: vendor.name,
-                lastName: '',
+                fullName: vendor.name,
                 userType: 'vendor',
                 exists: true
             };
         }
         return {
-            firstName: '',
-            lastName: '',
+            fullName: '',
             userType: null,
             exists: false
         };

@@ -275,8 +275,7 @@ export class WalletService {
   }
 
   async validateUsername(username: string): Promise<{ 
-    firstName: string; 
-    lastName: string; 
+    fullName: string;
     userType: 'student' | 'vendor' | null;
     exists: boolean;
   }> {
@@ -287,8 +286,7 @@ export class WalletService {
 
     if (student) {
       return {
-        firstName: student.firstName,
-        lastName: student.lastName,
+        fullName: `${student.firstName} ${student.lastName}`.trim(),
         userType: 'student',
         exists: true
       };
@@ -301,8 +299,7 @@ export class WalletService {
 
     if (vendor) {
       return {
-        firstName: vendor.name,
-        lastName: '',
+        fullName: vendor.name,
         userType: 'vendor',
         exists: true
       };
@@ -310,8 +307,7 @@ export class WalletService {
 
     // Return not found response
     return {
-      firstName: '',
-      lastName: '',
+      fullName: '',
       userType: null,
       exists: false
     };

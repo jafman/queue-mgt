@@ -375,15 +375,10 @@ export class WalletController {
     schema: {
       type: 'object',
       properties: {
-        firstName: {
+        fullName: {
           type: 'string',
-          example: 'John',
-          description: 'User\'s first name (or business name for vendors)'
-        },
-        lastName: {
-          type: 'string',
-          example: 'Doe',
-          description: 'User\'s last name (empty for vendors)'
+          example: 'John Doe',
+          description: 'User\'s full name (or business name for vendors)'
         },
         userType: {
           type: 'string',
