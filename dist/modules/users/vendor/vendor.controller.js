@@ -18,6 +18,10 @@ const swagger_1 = require("@nestjs/swagger");
 const vendor_service_1 = require("./vendor.service");
 const create_vendor_dto_1 = require("../dto/create-vendor.dto");
 const vendor_entity_1 = require("../entities/vendor.entity");
+const jwt_auth_guard_1 = require("../../../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../../../auth/guards/roles.guard");
+const roles_decorator_1 = require("../../../auth/decorators/roles.decorator");
+const role_enum_1 = require("../../../auth/enums/role.enum");
 let VendorController = class VendorController {
     vendorService;
     constructor(vendorService) {
@@ -30,16 +34,25 @@ let VendorController = class VendorController {
 exports.VendorController = VendorController;
 __decorate([
     (0, common_1.Post)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Create a new vendor' }),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a new vendor (Admin only)' }),
     (0, swagger_1.ApiBody)({ type: create_vendor_dto_1.CreateVendorDto }),
     (0, swagger_1.ApiResponse)({
         status: 201,
-        description: 'The vendor has been successfully created',
+        description: 'The vendor has been successfully created and invitation email sent',
         type: vendor_entity_1.Vendor,
     }),
     (0, swagger_1.ApiResponse)({
         status: 409,
         description: 'Username already exists',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing JWT token'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden - User does not have admin role'
     }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -49,6 +62,8 @@ __decorate([
 exports.VendorController = VendorController = __decorate([
     (0, swagger_1.ApiTags)('Vendors'),
     (0, common_1.Controller)('vendors'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     __metadata("design:paramtypes", [vendor_service_1.VendorService])
 ], VendorController);
 //# sourceMappingURL=vendor.controller.js.map

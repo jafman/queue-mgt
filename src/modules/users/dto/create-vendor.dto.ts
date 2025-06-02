@@ -1,49 +1,52 @@
-import { IsString, IsNotEmpty, IsEmail, IsOptional, MinLength } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, IsOptional, MinLength, IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { BusinessCategory } from '../entities/vendor.entity';
 
 export class CreateVendorDto {
   @ApiProperty({
-    description: 'Username for the vendor',
-    example: 'vendor_john',
-    required: true,
+    description: 'Username for the vendor account',
+    example: 'campus.cafe'
   })
   @IsString()
   @IsNotEmpty()
   username: string;
 
   @ApiProperty({
-    description: 'Password for the vendor',
-    example: 'password123',
-    required: true,
-    minLength: 6,
-  })
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(6)
-  password: string;
-
-  @ApiProperty({
-    description: 'Full name of the vendor',
-    example: 'John Doe',
-    required: true,
+    description: 'Vendor\'s full name',
+    example: 'John Doe'
   })
   @IsString()
   @IsNotEmpty()
   name: string;
 
   @ApiProperty({
-    description: 'Email address of the vendor',
-    example: 'john@example.com',
-    required: false,
+    description: 'Business name',
+    example: 'Campus Cafe'
   })
-  @IsEmail()
-  @IsOptional()
-  email?: string;
+  @IsString()
+  @IsNotEmpty()
+  business_name: string;
 
   @ApiProperty({
-    description: 'Phone number of the vendor',
-    example: '+1234567890',
-    required: false,
+    description: 'Business category',
+    enum: BusinessCategory,
+    example: BusinessCategory.FOOD_AND_NUTRITION
+  })
+  @IsEnum(BusinessCategory)
+  business_category: BusinessCategory;
+
+  @ApiProperty({
+    description: 'Vendor\'s email address',
+    example: 'john@campus.cafe'
+  })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty({
+    description: 'Vendor\'s phone number',
+    example: '+2348012345678',
+    required: false
   })
   @IsString()
   @IsOptional()

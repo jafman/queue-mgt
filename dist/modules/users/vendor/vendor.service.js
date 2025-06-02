@@ -17,32 +17,55 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const vendor_entity_1 = require("../entities/vendor.entity");
-const bcrypt = require("bcrypt");
+const mailer_service_1 = require("../../../mailer/mailer.service");
+const crypto = require("crypto");
 let VendorService = class VendorService {
     vendorRepository;
-    constructor(vendorRepository) {
+    mailerService;
+    constructor(vendorRepository, mailerService) {
         this.vendorRepository = vendorRepository;
+        this.mailerService = mailerService;
+    }
+    generatePassword() {
+        return crypto.randomBytes(4).toString('hex').toUpperCase();
     }
     async findByUsername(username) {
         return this.vendorRepository.findOne({ where: { username } });
     }
     async create(createVendorDto) {
-        const existingVendor = await this.findByUsername(createVendorDto.username);
+        const existingVendor = await this.vendorRepository.findOne({
+            where: { username: createVendorDto.username }
+        });
         if (existingVendor) {
             throw new common_1.ConflictException('Username already exists');
         }
-        const hashedPassword = await bcrypt.hash(createVendorDto.password, 10);
+        const password = this.generatePassword();
+        console.log({ password });
         const vendor = this.vendorRepository.create({
             ...createVendorDto,
-            password: hashedPassword,
+            password,
+            firstTimeLogin: true
         });
-        return this.vendorRepository.save(vendor);
+        const savedVendor = await this.vendorRepository.save(vendor);
+        await this.mailerService.sendEmail({
+            to: savedVendor.email,
+            toName: savedVendor.name,
+            subject: 'VENDOR INVITATION',
+            html: `
+        <p>Hi, ${savedVendor.name}</p>
+        <p>You have been invited to join QUICKP as a vendor. Your Account has been created and added to the platform.</p>
+        <p>Login to the app <a href="https://www.quickp.com.ng/">https://www.quickp.com.ng/</a> using the following password: <strong>${password}</strong></p>
+      `,
+            text: `Hi, ${savedVendor.name}. You have been invited to join QUICKP as a vendor. Your Account has been created and added to the platform. Login to the app https://www.quickp.com.ng/ using the following password: ${password}`
+        });
+        return savedVendor;
     }
 };
 exports.VendorService = VendorService;
 exports.VendorService = VendorService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(vendor_entity_1.Vendor)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        mailer_service_1.MailerService])
 ], VendorService);
 //# sourceMappingURL=vendor.service.js.map

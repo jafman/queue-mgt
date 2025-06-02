@@ -9,15 +9,24 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Vendor = void 0;
+exports.Vendor = exports.BusinessCategory = void 0;
 const typeorm_1 = require("typeorm");
+var BusinessCategory;
+(function (BusinessCategory) {
+    BusinessCategory["FOOD_AND_NUTRITION"] = "Food and Nutrition";
+    BusinessCategory["FASHION"] = "Fashion";
+    BusinessCategory["ELECTRONICS"] = "Electronics";
+})(BusinessCategory || (exports.BusinessCategory = BusinessCategory = {}));
 let Vendor = class Vendor {
     id;
     username;
     password;
     name;
+    business_name;
+    business_category;
     email;
     phone;
+    firstTimeLogin;
     createdAt;
     updatedAt;
 };
@@ -39,6 +48,18 @@ __decorate([
     __metadata("design:type", String)
 ], Vendor.prototype, "name", void 0);
 __decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Vendor.prototype, "business_name", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: BusinessCategory,
+        default: BusinessCategory.FOOD_AND_NUTRITION
+    }),
+    __metadata("design:type", String)
+], Vendor.prototype, "business_category", void 0);
+__decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Vendor.prototype, "email", void 0);
@@ -46,6 +67,10 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Vendor.prototype, "phone", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: true }),
+    __metadata("design:type", Boolean)
+], Vendor.prototype, "firstTimeLogin", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

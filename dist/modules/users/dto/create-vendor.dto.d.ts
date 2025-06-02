@@ -1,7 +1,9 @@
+import { BusinessCategory } from '../entities/vendor.entity';
 export declare class CreateVendorDto {
     username: string;
-    password: string;
     name: string;
-    email?: string;
+    business_name: string;
+    business_category: BusinessCategory;
+    email: string;
     phone?: string;
 }

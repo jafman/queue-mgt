@@ -12,19 +12,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateVendorDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
+const vendor_entity_1 = require("../entities/vendor.entity");
 class CreateVendorDto {
     username;
-    password;
     name;
+    business_name;
+    business_category;
     email;
     phone;
 }
 exports.CreateVendorDto = CreateVendorDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
-        description: 'Username for the vendor',
-        example: 'vendor_john',
-        required: true,
+        description: 'Username for the vendor account',
+        example: 'campus.cafe'
     }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
@@ -32,21 +33,8 @@ __decorate([
 ], CreateVendorDto.prototype, "username", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        description: 'Password for the vendor',
-        example: 'password123',
-        required: true,
-        minLength: 6,
-    }),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.MinLength)(6),
-    __metadata("design:type", String)
-], CreateVendorDto.prototype, "password", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({
-        description: 'Full name of the vendor',
-        example: 'John Doe',
-        required: true,
+        description: 'Vendor\'s full name',
+        example: 'John Doe'
     }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
@@ -54,19 +42,36 @@ __decorate([
 ], CreateVendorDto.prototype, "name", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        description: 'Email address of the vendor',
-        example: 'john@example.com',
-        required: false,
+        description: 'Business name',
+        example: 'Campus Cafe'
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateVendorDto.prototype, "business_name", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Business category',
+        enum: vendor_entity_1.BusinessCategory,
+        example: vendor_entity_1.BusinessCategory.FOOD_AND_NUTRITION
+    }),
+    (0, class_validator_1.IsEnum)(vendor_entity_1.BusinessCategory),
+    __metadata("design:type", String)
+], CreateVendorDto.prototype, "business_category", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Vendor\'s email address',
+        example: 'john@campus.cafe'
     }),
     (0, class_validator_1.IsEmail)(),
-    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateVendorDto.prototype, "email", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        description: 'Phone number of the vendor',
-        example: '+1234567890',
-        required: false,
+        description: 'Vendor\'s phone number',
+        example: '+2348012345678',
+        required: false
     }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),

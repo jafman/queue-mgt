@@ -299,7 +299,7 @@ export class WalletService {
 
     if (vendor) {
       return {
-        fullName: vendor.name,
+        fullName: vendor.business_name,
         userType: 'vendor',
         exists: true
       };
