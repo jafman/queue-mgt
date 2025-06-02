@@ -60,6 +60,9 @@ let WalletController = class WalletController {
     async transfer(req, createTransferDto) {
         return this.walletService.transfer(req.user.id, req.user.role, createTransferDto);
     }
+    async validateUsername(username) {
+        return this.walletService.validateUsername(username);
+    }
 };
 exports.WalletController = WalletController;
 __decorate([
@@ -371,6 +374,53 @@ __decorate([
     __metadata("design:paramtypes", [Object, create_transfer_dto_1.CreateTransferDto]),
     __metadata("design:returntype", Promise)
 ], WalletController.prototype, "transfer", null);
+__decorate([
+    (0, common_1.Get)('validate-username/:username'),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.STUDENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Validate username before transfer' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Username validation result',
+        schema: {
+            type: 'object',
+            properties: {
+                firstName: {
+                    type: 'string',
+                    example: 'John',
+                    description: 'User\'s first name (or business name for vendors)'
+                },
+                lastName: {
+                    type: 'string',
+                    example: 'Doe',
+                    description: 'User\'s last name (empty for vendors)'
+                },
+                userType: {
+                    type: 'string',
+                    enum: ['student', 'vendor', null],
+                    example: 'student',
+                    description: 'Type of user (student or vendor)'
+                },
+                exists: {
+                    type: 'boolean',
+                    example: true,
+                    description: 'Whether the username exists'
+                }
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing JWT token'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden - User does not have required role'
+    }),
+    __param(0, (0, common_1.Param)('username')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], WalletController.prototype, "validateUsername", null);
 exports.WalletController = WalletController = __decorate([
     (0, swagger_1.ApiTags)('Wallet'),
     (0, common_1.Controller)('wallet'),

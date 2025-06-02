@@ -27,4 +27,10 @@ export declare class WalletController {
         authorization_url: any;
     }>;
     transfer(req: any, createTransferDto: CreateTransferDto): Promise<Transaction>;
+    validateUsername(username: string): Promise<{
+        firstName: string;
+        lastName: string;
+        userType: "student" | "vendor" | null;
+        exists: boolean;
+    }>;
 }

@@ -207,6 +207,36 @@ let WalletService = class WalletService {
         });
         return senderTransaction;
     }
+    async validateUsername(username) {
+        const student = await this.studentRepository.findOne({
+            where: { username }
+        });
+        if (student) {
+            return {
+                firstName: student.firstName,
+                lastName: student.lastName,
+                userType: 'student',
+                exists: true
+            };
+        }
+        const vendor = await this.vendorRepository.findOne({
+            where: { username }
+        });
+        if (vendor) {
+            return {
+                firstName: vendor.name,
+                lastName: '',
+                userType: 'vendor',
+                exists: true
+            };
+        }
+        return {
+            firstName: '',
+            lastName: '',
+            userType: null,
+            exists: false
+        };
+    }
 };
 exports.WalletService = WalletService;
 exports.WalletService = WalletService = __decorate([

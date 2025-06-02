@@ -273,4 +273,47 @@ export class WalletService {
 
     return senderTransaction;
   }
+
+  async validateUsername(username: string): Promise<{ 
+    firstName: string; 
+    lastName: string; 
+    userType: 'student' | 'vendor' | null;
+    exists: boolean;
+  }> {
+    // Check student first
+    const student = await this.studentRepository.findOne({
+      where: { username }
+    });
+
+    if (student) {
+      return {
+        firstName: student.firstName,
+        lastName: student.lastName,
+        userType: 'student',
+        exists: true
+      };
+    }
+
+    // Check vendor if not found in students
+    const vendor = await this.vendorRepository.findOne({
+      where: { username }
+    });
+
+    if (vendor) {
+      return {
+        firstName: vendor.name,
+        lastName: '',
+        userType: 'vendor',
+        exists: true
+      };
+    }
+
+    // Return not found response
+    return {
+      firstName: '',
+      lastName: '',
+      userType: null,
+      exists: false
+    };
+  }
 } 

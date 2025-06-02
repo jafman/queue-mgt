@@ -33,4 +33,10 @@ export declare class WalletService {
     }>;
     updateWalletBalance(wallet: Wallet): Promise<Wallet>;
     transfer(senderId: string, senderType: string, createTransferDto: CreateTransferDto): Promise<Transaction>;
+    validateUsername(username: string): Promise<{
+        firstName: string;
+        lastName: string;
+        userType: 'student' | 'vendor' | null;
+        exists: boolean;
+    }>;
 }

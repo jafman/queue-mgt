@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Query, Request, Req, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Query, Request, Req, BadRequestException, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { WalletService } from './wallet.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -364,5 +364,52 @@ export class WalletController {
       req.user.role,
       createTransferDto,
     );
+  }
+
+  @Get('validate-username/:username')
+  @Roles(Role.STUDENT)
+  @ApiOperation({ summary: 'Validate username before transfer' })
+  @ApiResponse({
+    status: 200,
+    description: 'Username validation result',
+    schema: {
+      type: 'object',
+      properties: {
+        firstName: {
+          type: 'string',
+          example: 'John',
+          description: 'User\'s first name (or business name for vendors)'
+        },
+        lastName: {
+          type: 'string',
+          example: 'Doe',
+          description: 'User\'s last name (empty for vendors)'
+        },
+        userType: {
+          type: 'string',
+          enum: ['student', 'vendor', null],
+          example: 'student',
+          description: 'Type of user (student or vendor)'
+        },
+        exists: {
+          type: 'boolean',
+          example: true,
+          description: 'Whether the username exists'
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing JWT token'
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User does not have required role'
+  })
+  async validateUsername(
+    @Param('username') username: string,
+  ) {
+    return this.walletService.validateUsername(username);
   }
 } 
