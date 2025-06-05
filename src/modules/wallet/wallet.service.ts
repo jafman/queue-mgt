@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wallet } from './entities/wallet.entity';
-import { Transaction, TransactionType } from './entities/transaction.entity';
+import { Transaction, TransactionStatus, TransactionType } from './entities/transaction.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { StudentService } from '../users/student/student.service';
 import { VendorService } from '../users/vendor/vendor.service';
@@ -255,6 +255,7 @@ export class WalletService {
       description: `Transfer to ${createTransferDto.recipientUsername}`,
       walletId: senderWallet.id,
       relatedUserId: recipient.id,
+      status: TransactionStatus.SUCCESS,
     });
 
     // Create credit transaction for recipient
@@ -264,6 +265,7 @@ export class WalletService {
       description: `Transfer from ${sender.username}`,
       walletId: recipientWallet.id,
       relatedUserId: senderId,
+      status: TransactionStatus.SUCCESS,
     });
 
     // Update balances
