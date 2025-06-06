@@ -5,4 +5,12 @@ export declare class VendorController {
     private readonly vendorService;
     constructor(vendorService: VendorService);
     create(createVendorDto: CreateVendorDto): Promise<Omit<Vendor, 'password'>>;
+    findAll(page?: number, limit?: number): Promise<{
+        vendors: Omit<Vendor, "password">[];
+        total: number;
+        currentPage: number;
+        totalPages: number;
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+    }>;
 }

@@ -99,4 +99,44 @@ export class VendorService {
   async updateFirstTimeLogin(id: string, value: boolean): Promise<void> {
     await this.vendorRepository.update(id, { firstTimeLogin: value });
   }
+
+  async findAll(page: number = 1, limit: number = 10): Promise<{
+    vendors: Omit<Vendor, 'password'>[];
+    total: number;
+    currentPage: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  }> {
+    const [vendors, total] = await this.vendorRepository.findAndCount({
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        email: true,
+        phone: true,
+        business_name: true,
+        business_category: true,
+        firstTimeLogin: true,
+        createdAt: true,
+        updatedAt: true
+      },
+      order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const totalPages = Math.ceil(total / limit);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
+
+    return {
+      vendors,
+      total,
+      currentPage: page,
+      totalPages,
+      hasNextPage,
+      hasPreviousPage
+    };
+  }
 } 

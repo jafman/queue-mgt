@@ -64,8 +64,7 @@ let VendorService = class VendorService {
                 throw new common_1.ConflictException('Phone number already exists');
             }
         }
-        const plainPassword = this.generatePassword();
-        console.log({ plainPassword });
+        const plainPassword = 'PASSWORD';
         const vendor = this.vendorRepository.create({
             ...createVendorDto,
             password: await this.hashPassword(plainPassword),
@@ -91,6 +90,36 @@ let VendorService = class VendorService {
     }
     async updateFirstTimeLogin(id, value) {
         await this.vendorRepository.update(id, { firstTimeLogin: value });
+    }
+    async findAll(page = 1, limit = 10) {
+        const [vendors, total] = await this.vendorRepository.findAndCount({
+            select: {
+                id: true,
+                username: true,
+                name: true,
+                email: true,
+                phone: true,
+                business_name: true,
+                business_category: true,
+                firstTimeLogin: true,
+                createdAt: true,
+                updatedAt: true
+            },
+            order: { createdAt: 'DESC' },
+            skip: (page - 1) * limit,
+            take: limit,
+        });
+        const totalPages = Math.ceil(total / limit);
+        const hasNextPage = page < totalPages;
+        const hasPreviousPage = page > 1;
+        return {
+            vendors,
+            total,
+            currentPage: page,
+            totalPages,
+            hasNextPage,
+            hasPreviousPage
+        };
     }
 };
 exports.VendorService = VendorService;

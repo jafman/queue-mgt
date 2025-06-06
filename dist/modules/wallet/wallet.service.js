@@ -195,6 +195,7 @@ let WalletService = class WalletService {
             description: `Transfer to ${createTransferDto.recipientUsername}`,
             walletId: senderWallet.id,
             relatedUserId: recipient.id,
+            status: transaction_entity_1.TransactionStatus.SUCCESS,
         });
         const recipientTransaction = this.transactionRepository.create({
             amount: createTransferDto.amount,
@@ -202,6 +203,7 @@ let WalletService = class WalletService {
             description: `Transfer from ${sender.username}`,
             walletId: recipientWallet.id,
             relatedUserId: senderId,
+            status: transaction_entity_1.TransactionStatus.SUCCESS,
         });
         senderWallet.balance = Number(senderWallet.balance) - Number(createTransferDto.amount);
         recipientWallet.balance = Number(recipientWallet.balance) + Number(createTransferDto.amount);

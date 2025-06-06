@@ -13,4 +13,12 @@ export declare class VendorService {
     create(createVendorDto: CreateVendorDto): Promise<Omit<Vendor, 'password'>>;
     updatePassword(id: string, hashedPassword: string): Promise<void>;
     updateFirstTimeLogin(id: string, value: boolean): Promise<void>;
+    findAll(page?: number, limit?: number): Promise<{
+        vendors: Omit<Vendor, 'password'>[];
+        total: number;
+        currentPage: number;
+        totalPages: number;
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+    }>;
 }
