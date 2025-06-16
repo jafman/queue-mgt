@@ -29,7 +29,7 @@ let StudentService = class StudentService {
         this.mailerService = mailerService;
     }
     generateOTP() {
-        return '123456';
+        return Math.floor(100000 + Math.random() * 900000).toString();
     }
     async sendOTPEmail(email, otp) {
         await this.mailerService.sendEmail({

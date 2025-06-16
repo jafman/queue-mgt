@@ -1,20 +1,28 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Recipient, EmailParams, MailerSend, Sender } from 'mailersend';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class MailerService {
   private readonly logger = new Logger(MailerService.name);
-  private mailerSend: MailerSend;
+  private transporter: nodemailer.Transporter;
+  private readonly email!: string;
+  private readonly password!: string;
 
   constructor(private configService: ConfigService) {
-    const apiKey = this.configService.get<string>('MAILERSEND_API_KEY');
-    console.log(apiKey);
-    if (!apiKey) {
-      throw new Error('MAILERSEND_API_KEY is not defined in environment variables');
+    this.email = this.configService.get<string>('EMAIL_ADDRESS')!;
+    this.password = this.configService.get<string>('EMAIL_PASSWORD')!;
+
+    if (!this.email || !this.password) {
+      throw new Error('EMAIL_ADDRESS and EMAIL_PASSWORD must be defined in environment variables');
     }
-    this.mailerSend = new MailerSend({
-      apiKey,
+
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: this.email,
+        pass: this.password,
+      },
     });
   }
 
@@ -24,7 +32,7 @@ export class MailerService {
     subject,
     html,
     text,
-    from = 'test-68zxl279yd54j905.mlsender.net',
+    from = this.email,
     fromName = 'Queue Mgt System',
   }: {
     to: string;
@@ -36,24 +44,21 @@ export class MailerService {
     fromName?: string;
   }) {
     try {
-      const recipients = [new Recipient(to, toName)];
-      const sender = new Sender(from, fromName);
-      
-      const emailParams = new EmailParams()
-        .setFrom(sender)
-        .setTo(recipients)
-        .setSubject(subject)
-        .setHtml(html)
-        .setText(text);
+      const mailOptions = {
+        from: `"${fromName}" <${from}>`,
+        to: `"${toName}" <${to}>`,
+        subject,
+        text,
+        html,
+      };
 
       this.logger.debug(`Attempting to send email to ${to}`);
-      const response = await this.mailerSend.email.send(emailParams);
+      const info = await this.transporter.sendMail(mailOptions);
       this.logger.debug(`Email sent successfully to ${to}`);
-      return response;
+      return info;
     } catch (error) {
-    //   this.logger.error(`Failed to send email: ${error.message}`, error.stack);
-    //   throw new Error(`Failed to send email: ${error.message}`);
-    return true;
+      this.logger.error(`Failed to send email: ${error.message}`, error.stack);
+      throw new Error(`Failed to send email: ${error.message}`);
     }
   }
 } 

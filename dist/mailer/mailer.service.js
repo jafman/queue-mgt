@@ -13,39 +13,45 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MailerService = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
-const mailersend_1 = require("mailersend");
+const nodemailer = require("nodemailer");
 let MailerService = MailerService_1 = class MailerService {
     configService;
     logger = new common_1.Logger(MailerService_1.name);
-    mailerSend;
+    transporter;
+    email;
+    password;
     constructor(configService) {
         this.configService = configService;
-        const apiKey = this.configService.get('MAILERSEND_API_KEY');
-        console.log(apiKey);
-        if (!apiKey) {
-            throw new Error('MAILERSEND_API_KEY is not defined in environment variables');
+        this.email = this.configService.get('EMAIL_ADDRESS');
+        this.password = this.configService.get('EMAIL_PASSWORD');
+        if (!this.email || !this.password) {
+            throw new Error('EMAIL_ADDRESS and EMAIL_PASSWORD must be defined in environment variables');
         }
-        this.mailerSend = new mailersend_1.MailerSend({
-            apiKey,
+        this.transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: this.email,
+                pass: this.password,
+            },
         });
     }
-    async sendEmail({ to, toName, subject, html, text, from = 'test-68zxl279yd54j905.mlsender.net', fromName = 'Queue Mgt System', }) {
+    async sendEmail({ to, toName, subject, html, text, from = this.email, fromName = 'Queue Mgt System', }) {
         try {
-            const recipients = [new mailersend_1.Recipient(to, toName)];
-            const sender = new mailersend_1.Sender(from, fromName);
-            const emailParams = new mailersend_1.EmailParams()
-                .setFrom(sender)
-                .setTo(recipients)
-                .setSubject(subject)
-                .setHtml(html)
-                .setText(text);
+            const mailOptions = {
+                from: `"${fromName}" <${from}>`,
+                to: `"${toName}" <${to}>`,
+                subject,
+                text,
+                html,
+            };
             this.logger.debug(`Attempting to send email to ${to}`);
-            const response = await this.mailerSend.email.send(emailParams);
+            const info = await this.transporter.sendMail(mailOptions);
             this.logger.debug(`Email sent successfully to ${to}`);
-            return response;
+            return info;
         }
         catch (error) {
-            return true;
+            this.logger.error(`Failed to send email: ${error.message}`, error.stack);
+            throw new Error(`Failed to send email: ${error.message}`);
         }
     }
 };

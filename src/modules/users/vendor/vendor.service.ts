@@ -61,8 +61,8 @@ export class VendorService {
     }
 
     // Generate a random password
-    // const plainPassword = this.generatePassword();
-    const plainPassword = 'PASSWORD';
+    const plainPassword = this.generatePassword();
+    // const plainPassword = 'PASSWORD';
     // console.log({plainPassword});
     // Create the vendor with hashed password
     const vendor = this.vendorRepository.create({

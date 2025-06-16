@@ -2,7 +2,9 @@ import { ConfigService } from '@nestjs/config';
 export declare class MailerService {
     private configService;
     private readonly logger;
-    private mailerSend;
+    private transporter;
+    private readonly email;
+    private readonly password;
     constructor(configService: ConfigService);
     sendEmail({ to, toName, subject, html, text, from, fromName, }: {
         to: string;
@@ -12,5 +14,5 @@ export declare class MailerService {
         text: string;
         from?: string;
         fromName?: string;
-    }): Promise<true | import("mailersend/lib/services/request.service").APIResponse>;
+    }): Promise<any>;
 }

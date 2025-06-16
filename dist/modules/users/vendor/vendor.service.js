@@ -64,7 +64,7 @@ let VendorService = class VendorService {
                 throw new common_1.ConflictException('Phone number already exists');
             }
         }
-        const plainPassword = 'PASSWORD';
+        const plainPassword = this.generatePassword();
         const vendor = this.vendorRepository.create({
             ...createVendorDto,
             password: await this.hashPassword(plainPassword),

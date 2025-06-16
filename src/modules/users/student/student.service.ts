@@ -21,8 +21,8 @@ export class StudentService {
   ) {}
 
   private generateOTP(): string {
-    // return Math.floor(100000 + Math.random() * 900000).toString();
-    return '123456';
+    return Math.floor(100000 + Math.random() * 900000).toString();
+    // return '123456';
   }
 
   private async sendOTPEmail(email: string, otp: string): Promise<void> {
