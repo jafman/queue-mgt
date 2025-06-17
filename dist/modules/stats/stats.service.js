@@ -17,10 +17,13 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const vendor_entity_1 = require("../users/entities/vendor.entity");
+const student_entity_1 = require("../users/entities/student.entity");
 let StatsService = class StatsService {
     vendorRepository;
-    constructor(vendorRepository) {
+    studentRepository;
+    constructor(vendorRepository, studentRepository) {
         this.vendorRepository = vendorRepository;
+        this.studentRepository = studentRepository;
     }
     async getVendorStats() {
         const allVendors = await this.vendorRepository.count();
@@ -36,11 +39,23 @@ let StatsService = class StatsService {
             pendingVendors
         };
     }
+    async getStudentStats() {
+        const allStudents = await this.studentRepository.count();
+        const activeStudents = allStudents;
+        const inactiveStudents = 0;
+        return {
+            allStudents,
+            activeStudents,
+            inactiveStudents
+        };
+    }
 };
 exports.StatsService = StatsService;
 exports.StatsService = StatsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(vendor_entity_1.Vendor)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(student_entity_1.Student)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository])
 ], StatsService);
 //# sourceMappingURL=stats.service.js.map

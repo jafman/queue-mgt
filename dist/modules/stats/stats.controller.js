@@ -25,6 +25,9 @@ let StatsController = class StatsController {
     async getVendorStats() {
         return this.statsService.getVendorStats();
     }
+    async getStudentStats() {
+        return this.statsService.getStudentStats();
+    }
 };
 exports.StatsController = StatsController;
 __decorate([
@@ -72,6 +75,46 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], StatsController.prototype, "getVendorStats", null);
+__decorate([
+    (0, common_1.Get)('student'),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Get student statistics' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Returns student statistics',
+        schema: {
+            type: 'object',
+            properties: {
+                allStudents: {
+                    type: 'number',
+                    example: 500,
+                    description: 'Total number of students'
+                },
+                activeStudents: {
+                    type: 'number',
+                    example: 500,
+                    description: 'Number of active students'
+                },
+                inactiveStudents: {
+                    type: 'number',
+                    example: 0,
+                    description: 'Number of inactive students (always 0)'
+                }
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing JWT token'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden - User does not have required role'
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], StatsController.prototype, "getStudentStats", null);
 exports.StatsController = StatsController = __decorate([
     (0, swagger_1.ApiTags)('Statistics'),
     (0, common_1.Controller)('stats'),

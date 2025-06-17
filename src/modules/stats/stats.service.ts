@@ -2,12 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Vendor } from '../users/entities/vendor.entity';
+import { Student } from '../users/entities/student.entity';
 
 @Injectable()
 export class StatsService {
   constructor(
     @InjectRepository(Vendor)
     private vendorRepository: Repository<Vendor>,
+    @InjectRepository(Student)
+    private studentRepository: Repository<Student>,
   ) {}
 
   async getVendorStats() {
@@ -30,6 +33,23 @@ export class StatsService {
       activeVendors,
       inactiveVendors,
       pendingVendors
+    };
+  }
+
+  async getStudentStats() {
+    // Get total number of students
+    const allStudents = await this.studentRepository.count();
+
+    // All students are considered active
+    const activeStudents = allStudents;
+
+    // Inactive students is always 0
+    const inactiveStudents = 0;
+
+    return {
+      allStudents,
+      activeStudents,
+      inactiveStudents
     };
   }
 } 

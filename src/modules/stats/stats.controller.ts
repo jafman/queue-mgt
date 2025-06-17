@@ -56,4 +56,43 @@ export class StatsController {
   async getVendorStats() {
     return this.statsService.getVendorStats();
   }
+
+  @Get('student')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Get student statistics' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns student statistics',
+    schema: {
+      type: 'object',
+      properties: {
+        allStudents: {
+          type: 'number',
+          example: 500,
+          description: 'Total number of students'
+        },
+        activeStudents: {
+          type: 'number',
+          example: 500,
+          description: 'Number of active students'
+        },
+        inactiveStudents: {
+          type: 'number',
+          example: 0,
+          description: 'Number of inactive students (always 0)'
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing JWT token'
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User does not have required role'
+  })
+  async getStudentStats() {
+    return this.statsService.getStudentStats();
+  }
 } 

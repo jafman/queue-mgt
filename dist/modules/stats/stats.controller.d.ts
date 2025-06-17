@@ -8,4 +8,9 @@ export declare class StatsController {
         inactiveVendors: number;
         pendingVendors: number;
     }>;
+    getStudentStats(): Promise<{
+        allStudents: number;
+        activeStudents: number;
+        inactiveStudents: number;
+    }>;
 }
