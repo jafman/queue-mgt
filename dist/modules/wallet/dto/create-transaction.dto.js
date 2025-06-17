@@ -14,15 +14,6 @@ const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 const transaction_entity_1 = require("../entities/transaction.entity");
 class CreateTransactionDto {
-    amount;
-    type;
-    description;
-    reference;
-    recipientId;
-    recipientType;
-    relatedTransactionId;
-    relatedUserId;
-    status;
 }
 exports.CreateTransactionDto = CreateTransactionDto;
 __decorate([

@@ -12,9 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BaseEntity = void 0;
 const typeorm_1 = require("typeorm");
 class BaseEntity {
-    id;
-    createdAt;
-    updatedAt;
 }
 exports.BaseEntity = BaseEntity;
 __decorate([

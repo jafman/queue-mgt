@@ -23,7 +23,6 @@ const roles_guard_1 = require("../../../auth/guards/roles.guard");
 const roles_decorator_1 = require("../../../auth/decorators/roles.decorator");
 const role_enum_1 = require("../../../auth/enums/role.enum");
 let VendorController = class VendorController {
-    vendorService;
     constructor(vendorService) {
         this.vendorService = vendorService;
     }

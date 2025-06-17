@@ -20,9 +20,6 @@ const vendor_entity_1 = require("../users/entities/vendor.entity");
 const student_entity_1 = require("../users/entities/student.entity");
 const transaction_entity_1 = require("../wallet/entities/transaction.entity");
 let StatsService = class StatsService {
-    vendorRepository;
-    studentRepository;
-    transactionRepository;
     constructor(vendorRepository, studentRepository, transactionRepository) {
         this.vendorRepository = vendorRepository;
         this.studentRepository = studentRepository;

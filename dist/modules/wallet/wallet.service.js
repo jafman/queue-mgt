@@ -25,13 +25,6 @@ const student_entity_1 = require("../users/entities/student.entity");
 const vendor_entity_1 = require("../users/entities/vendor.entity");
 const create_transfer_dto_1 = require("./dto/create-transfer.dto");
 let WalletService = class WalletService {
-    walletRepository;
-    transactionRepository;
-    studentRepository;
-    vendorRepository;
-    studentService;
-    vendorService;
-    authService;
     constructor(walletRepository, transactionRepository, studentRepository, vendorRepository, studentService, vendorService, authService) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
@@ -62,13 +55,13 @@ let WalletService = class WalletService {
         let email = 'Email not found';
         if (userType === 'student') {
             const student = await this.studentRepository.findOne({ where: { id: userId } });
-            if (student?.email) {
+            if (student === null || student === void 0 ? void 0 : student.email) {
                 email = student.email;
             }
         }
         else if (userType === 'vendor') {
             const vendor = await this.vendorRepository.findOne({ where: { id: userId } });
-            if (vendor?.email) {
+            if (vendor === null || vendor === void 0 ? void 0 : vendor.email) {
                 email = vendor.email;
             }
         }
@@ -88,18 +81,8 @@ let WalletService = class WalletService {
             if (wallet.balance < createTransactionDto.amount) {
                 throw new common_1.BadRequestException('Insufficient balance');
             }
-            const senderTransaction = this.transactionRepository.create({
-                ...createTransactionDto,
-                walletId: wallet.id,
-                type: transaction_entity_1.TransactionType.DEBIT,
-                relatedUserId: recipientWallet.userId,
-            });
-            const recipientTransaction = this.transactionRepository.create({
-                ...createTransactionDto,
-                walletId: recipientWallet.id,
-                type: transaction_entity_1.TransactionType.CREDIT,
-                relatedUserId: wallet.userId,
-            });
+            const senderTransaction = this.transactionRepository.create(Object.assign(Object.assign({}, createTransactionDto), { walletId: wallet.id, type: transaction_entity_1.TransactionType.DEBIT, relatedUserId: recipientWallet.userId }));
+            const recipientTransaction = this.transactionRepository.create(Object.assign(Object.assign({}, createTransactionDto), { walletId: recipientWallet.id, type: transaction_entity_1.TransactionType.CREDIT, relatedUserId: wallet.userId }));
             wallet.balance -= createTransactionDto.amount;
             recipientWallet.balance += createTransactionDto.amount;
             await this.transactionRepository.manager.transaction(async (manager) => {
@@ -113,10 +96,7 @@ let WalletService = class WalletService {
         if (createTransactionDto.type === transaction_entity_1.TransactionType.DEBIT && wallet.balance < createTransactionDto.amount) {
             throw new common_1.BadRequestException('Insufficient balance');
         }
-        const transaction = this.transactionRepository.create({
-            ...createTransactionDto,
-            walletId: wallet.id,
-        });
+        const transaction = this.transactionRepository.create(Object.assign(Object.assign({}, createTransactionDto), { walletId: wallet.id }));
         if (createTransactionDto.type === transaction_entity_1.TransactionType.CREDIT) {
             wallet.balance += createTransactionDto.amount;
         }

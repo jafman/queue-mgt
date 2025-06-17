@@ -21,7 +21,6 @@ const roles_decorator_1 = require("../../auth/decorators/roles.decorator");
 const role_enum_1 = require("../../auth/enums/role.enum");
 const stats_service_1 = require("./stats.service");
 let StatsController = class StatsController {
-    statsService;
     constructor(statsService) {
         this.statsService = statsService;
     }

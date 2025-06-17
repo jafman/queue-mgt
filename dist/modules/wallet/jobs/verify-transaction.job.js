@@ -24,18 +24,14 @@ const wallet_service_1 = require("../wallet.service");
 const typeorm_3 = require("typeorm");
 const wallet_entity_1 = require("../entities/wallet.entity");
 let VerifyTransactionJob = VerifyTransactionJob_1 = class VerifyTransactionJob {
-    transactionRepository;
-    paystackService;
-    walletService;
-    walletRepository;
-    logger = new common_1.Logger(VerifyTransactionJob_1.name);
-    MAX_ATTEMPTS = 20;
-    POLL_INTERVAL = 30000;
     constructor(transactionRepository, paystackService, walletService, walletRepository) {
         this.transactionRepository = transactionRepository;
         this.paystackService = paystackService;
         this.walletService = walletService;
         this.walletRepository = walletRepository;
+        this.logger = new common_1.Logger(VerifyTransactionJob_1.name);
+        this.MAX_ATTEMPTS = 20;
+        this.POLL_INTERVAL = 30000;
     }
     async handleVerification() {
         const pendingTransactions = await this.transactionRepository.find({

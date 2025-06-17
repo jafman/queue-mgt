@@ -19,8 +19,6 @@ const login_dto_1 = require("../dto/login.dto");
 const vendor_service_1 = require("../../modules/users/vendor/vendor.service");
 const swagger_1 = require("@nestjs/swagger");
 let VendorAuthController = class VendorAuthController {
-    authService;
-    vendorService;
     constructor(authService, vendorService) {
         this.authService = authService;
         this.vendorService = vendorService;

@@ -12,14 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StudentResponseDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 class StudentResponseDto {
-    id;
-    username;
-    email;
-    firstName;
-    lastName;
-    studentId;
-    createdAt;
-    updatedAt;
     static fromEntity(entity) {
         const dto = new StudentResponseDto();
         dto.id = entity.id;

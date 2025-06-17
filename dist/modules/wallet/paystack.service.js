@@ -15,12 +15,10 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const axios_1 = require("axios");
 let PaystackService = PaystackService_1 = class PaystackService {
-    configService;
-    logger = new common_1.Logger(PaystackService_1.name);
-    baseUrl = 'https://api.paystack.co';
-    secretKey;
     constructor(configService) {
         this.configService = configService;
+        this.logger = new common_1.Logger(PaystackService_1.name);
+        this.baseUrl = 'https://api.paystack.co';
         const secretKey = this.configService.get('PAYSTACK_SECRET_KEY');
         if (!secretKey) {
             throw new Error('PAYSTACK_SECRET_KEY is not defined in environment variables');
@@ -28,6 +26,7 @@ let PaystackService = PaystackService_1 = class PaystackService {
         this.secretKey = secretKey;
     }
     async initializeTransaction(email, amount) {
+        var _a;
         try {
             const response = await axios_1.default.post(`${this.baseUrl}/transaction/initialize`, {
                 email,
@@ -41,11 +40,12 @@ let PaystackService = PaystackService_1 = class PaystackService {
             return response.data;
         }
         catch (error) {
-            this.logger.error('Failed to initialize Paystack transaction', error.response?.data || error.message);
+            this.logger.error('Failed to initialize Paystack transaction', ((_a = error.response) === null || _a === void 0 ? void 0 : _a.data) || error.message);
             throw error;
         }
     }
     async verifyTransaction(reference) {
+        var _a;
         try {
             const response = await axios_1.default.get(`${this.baseUrl}/transaction/verify/${reference}`, {
                 headers: {
@@ -55,7 +55,7 @@ let PaystackService = PaystackService_1 = class PaystackService {
             return response.data;
         }
         catch (error) {
-            this.logger.error('Failed to verify Paystack transaction', error.response?.data || error.message);
+            this.logger.error('Failed to verify Paystack transaction', ((_a = error.response) === null || _a === void 0 ? void 0 : _a.data) || error.message);
             throw error;
         }
     }

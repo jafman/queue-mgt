@@ -19,8 +19,6 @@ const login_dto_1 = require("../dto/login.dto");
 const admin_service_1 = require("../../modules/users/admin/admin.service");
 const swagger_1 = require("@nestjs/swagger");
 let AdminAuthController = class AdminAuthController {
-    authService;
-    adminService;
     constructor(authService, adminService) {
         this.authService = authService;
         this.adminService = adminService;

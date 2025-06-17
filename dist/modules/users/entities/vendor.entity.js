@@ -13,17 +13,6 @@ exports.Vendor = void 0;
 const typeorm_1 = require("typeorm");
 const business_category_enum_1 = require("../enums/business-category.enum");
 let Vendor = class Vendor {
-    id;
-    username;
-    password;
-    name;
-    email;
-    phone;
-    business_name;
-    business_category;
-    firstTimeLogin;
-    createdAt;
-    updatedAt;
 };
 exports.Vendor = Vendor;
 __decorate([

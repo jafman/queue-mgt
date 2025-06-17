@@ -18,9 +18,6 @@ var RecipientType;
     RecipientType["VENDOR"] = "vendor";
 })(RecipientType || (exports.RecipientType = RecipientType = {}));
 class CreateTransferDto {
-    amount;
-    recipientUsername;
-    recipientType;
 }
 exports.CreateTransferDto = CreateTransferDto;
 __decorate([

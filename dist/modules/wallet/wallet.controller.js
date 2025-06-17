@@ -26,8 +26,6 @@ const transaction_entity_1 = require("./entities/transaction.entity");
 const create_transfer_dto_1 = require("./dto/create-transfer.dto");
 const create_withdrawal_dto_1 = require("./dto/create-withdrawal.dto");
 let WalletController = class WalletController {
-    walletService;
-    paystackService;
     constructor(walletService, paystackService) {
         this.walletService = walletService;
         this.paystackService = paystackService;

@@ -12,14 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Admin = void 0;
 const typeorm_1 = require("typeorm");
 let Admin = class Admin {
-    id;
-    username;
-    password;
-    name;
-    email;
-    isActive;
-    createdAt;
-    updatedAt;
 };
 exports.Admin = Admin;
 __decorate([

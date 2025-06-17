@@ -25,7 +25,6 @@ const role_enum_1 = require("../../../auth/enums/role.enum");
 const pagination_dto_1 = require("../dto/pagination.dto");
 const student_list_dto_1 = require("../dto/student-list.dto");
 let StudentController = class StudentController {
-    studentService;
     constructor(studentService) {
         this.studentService = studentService;
     }

@@ -28,16 +28,6 @@ var TransactionStatus;
     TransactionStatus["REVERSED"] = "reversed";
 })(TransactionStatus || (exports.TransactionStatus = TransactionStatus = {}));
 let Transaction = class Transaction {
-    id;
-    amount;
-    type;
-    status;
-    description;
-    reference;
-    relatedTransactionId;
-    relatedUserId;
-    walletId;
-    createdAt;
 };
 exports.Transaction = Transaction;
 __decorate([

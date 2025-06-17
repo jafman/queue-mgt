@@ -14,12 +14,6 @@ const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 const business_category_enum_1 = require("../enums/business-category.enum");
 class CreateVendorDto {
-    username;
-    name;
-    business_name;
-    business_category;
-    email;
-    phone;
 }
 exports.CreateVendorDto = CreateVendorDto;
 __decorate([

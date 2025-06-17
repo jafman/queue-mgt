@@ -13,12 +13,6 @@ exports.CreateStudentDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 class CreateStudentDto {
-    username;
-    email;
-    password;
-    firstName;
-    lastName;
-    studentId;
 }
 exports.CreateStudentDto = CreateStudentDto;
 __decorate([

@@ -18,7 +18,6 @@ const swagger_1 = require("@nestjs/swagger");
 const reset_password_dto_1 = require("../dto/reset-password.dto");
 const auth_service_1 = require("../services/auth.service");
 let AuthController = class AuthController {
-    authService;
     constructor(authService) {
         this.authService = authService;
     }

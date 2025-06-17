@@ -15,13 +15,9 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const nodemailer = require("nodemailer");
 let MailerService = MailerService_1 = class MailerService {
-    configService;
-    logger = new common_1.Logger(MailerService_1.name);
-    transporter;
-    email;
-    password;
     constructor(configService) {
         this.configService = configService;
+        this.logger = new common_1.Logger(MailerService_1.name);
         this.email = this.configService.get('EMAIL_ADDRESS');
         this.password = this.configService.get('EMAIL_PASSWORD');
         if (!this.email || !this.password) {

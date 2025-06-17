@@ -21,12 +21,10 @@ const student_response_dto_1 = require("../dto/student-response.dto");
 const mailer_service_1 = require("../../../mailer/mailer.service");
 const bcrypt = require("bcrypt");
 let StudentService = class StudentService {
-    studentRepository;
-    mailerService;
-    otpStore = new Map();
     constructor(studentRepository, mailerService) {
         this.studentRepository = studentRepository;
         this.mailerService = mailerService;
+        this.otpStore = new Map();
     }
     generateOTP() {
         return Math.floor(100000 + Math.random() * 900000).toString();
@@ -82,10 +80,7 @@ let StudentService = class StudentService {
         }
         this.otpStore.delete(verifyOtpDto.email);
         const hashedPassword = await bcrypt.hash(createStudentDto.password, 10);
-        const student = this.studentRepository.create({
-            ...createStudentDto,
-            password: hashedPassword,
-        });
+        const student = this.studentRepository.create(Object.assign(Object.assign({}, createStudentDto), { password: hashedPassword }));
         const savedStudent = await this.studentRepository.save(student);
         return student_response_dto_1.StudentResponseDto.fromEntity(savedStudent);
     }

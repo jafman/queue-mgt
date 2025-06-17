@@ -13,11 +13,6 @@ exports.StudentListResponseDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const student_response_dto_1 = require("./student-response.dto");
 class StudentListResponseDto {
-    data;
-    page;
-    limit;
-    total;
-    totalPages;
 }
 exports.StudentListResponseDto = StudentListResponseDto;
 __decorate([

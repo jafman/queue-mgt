@@ -8,6 +8,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
@@ -17,9 +28,6 @@ const role_enum_1 = require("../enums/role.enum");
 const vendor_service_1 = require("../../modules/users/vendor/vendor.service");
 const student_service_1 = require("../../modules/users/student/student.service");
 let AuthService = class AuthService {
-    jwtService;
-    studentService;
-    vendorService;
     constructor(jwtService, studentService, vendorService) {
         this.jwtService = jwtService;
         this.studentService = studentService;
@@ -33,7 +41,7 @@ let AuthService = class AuthService {
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        const { password: _, ...result } = user;
+        const { password: _ } = user, result = __rest(user, ["password"]);
         return result;
     }
     async login(user, userType) {
@@ -61,13 +69,10 @@ let AuthService = class AuthService {
             sub: user.id,
             role: role
         };
-        const { password, ...userData } = user;
+        const { password } = user, userData = __rest(user, ["password"]);
         return {
             access_token: this.jwtService.sign(payload),
-            user: {
-                ...userData,
-                role: role
-            }
+            user: Object.assign(Object.assign({}, userData), { role: role })
         };
     }
     async resetPassword(userType, resetPasswordDto) {

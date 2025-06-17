@@ -12,12 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Wallet = void 0;
 const typeorm_1 = require("typeorm");
 let Wallet = class Wallet {
-    id;
-    balance;
-    userId;
-    userType;
-    createdAt;
-    updatedAt;
 };
 exports.Wallet = Wallet;
 __decorate([

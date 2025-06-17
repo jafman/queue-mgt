@@ -13,8 +13,6 @@ exports.InitializeWalletFundingDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 class InitializeWalletFundingDto {
-    amount;
-    email;
 }
 exports.InitializeWalletFundingDto = InitializeWalletFundingDto;
 __decorate([
