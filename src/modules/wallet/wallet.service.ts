@@ -10,6 +10,7 @@ import { AuthService } from '../../auth/services/auth.service';
 import { Student } from '../users/entities/student.entity';
 import { Vendor } from '../users/entities/vendor.entity';
 import { CreateTransferDto, RecipientType } from './dto/create-transfer.dto';
+import { CreateWithdrawalDto } from './dto/create-withdrawal.dto';
 
 @Injectable()
 export class WalletService {
@@ -344,5 +345,53 @@ export class WalletService {
       userType: null,
       exists: false
     };
+  }
+
+  async withdraw(
+    vendorId: string,
+    createWithdrawalDto: CreateWithdrawalDto,
+  ): Promise<Transaction> {
+    // Get vendor's wallet
+    const wallet = await this.getOrCreateWallet(vendorId, 'vendor');
+
+    // Check if there's sufficient balance
+    if (wallet.balance < createWithdrawalDto.amount) {
+      throw new BadRequestException('Insufficient balance');
+    }
+
+    // Create withdrawal transaction
+    const transaction = this.transactionRepository.create({
+      amount: createWithdrawalDto.amount,
+      type: TransactionType.DEBIT,
+      description: 'Withdrawal to bank account',
+      walletId: wallet.id,
+      status: TransactionStatus.SUCCESS,
+    });
+
+    // Update wallet balance
+    wallet.balance = Number(wallet.balance) - Number(createWithdrawalDto.amount);
+
+    // Save both transaction and wallet in a transaction to ensure atomicity
+    const result = await this.transactionRepository.manager.transaction(async (manager) => {
+      const savedTransaction = await manager.save(transaction);
+      await manager.save(wallet);
+      return savedTransaction;
+    });
+
+    // Verify balance after withdrawal
+    const updatedWallet = await this.walletRepository.findOne({
+      where: { id: wallet.id }
+    });
+
+    if (!updatedWallet) {
+      throw new Error('Failed to verify wallet update');
+    }
+
+    console.log('Withdrawal completed:', {
+      balance: updatedWallet.balance,
+      amount: createWithdrawalDto.amount
+    });
+
+    return result;
   }
 } 

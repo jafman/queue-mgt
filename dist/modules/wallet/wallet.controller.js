@@ -24,6 +24,7 @@ const paystack_service_1 = require("./paystack.service");
 const initialize_wallet_funding_dto_1 = require("./dto/initialize-wallet-funding.dto");
 const transaction_entity_1 = require("./entities/transaction.entity");
 const create_transfer_dto_1 = require("./dto/create-transfer.dto");
+const create_withdrawal_dto_1 = require("./dto/create-withdrawal.dto");
 let WalletController = class WalletController {
     walletService;
     paystackService;
@@ -58,6 +59,9 @@ let WalletController = class WalletController {
     }
     async validateUsername(username) {
         return this.walletService.validateUsername(username);
+    }
+    async withdraw(req, createWithdrawalDto) {
+        return this.walletService.withdraw(req.user.id, createWithdrawalDto);
     }
 };
 exports.WalletController = WalletController;
@@ -350,6 +354,64 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], WalletController.prototype, "validateUsername", null);
+__decorate([
+    (0, common_1.Post)('withdraw'),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.VENDOR),
+    (0, swagger_1.ApiOperation)({ summary: 'Withdraw funds from wallet to bank account' }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Withdrawal successful',
+        schema: {
+            type: 'object',
+            properties: {
+                id: {
+                    type: 'string',
+                    example: '123e4567-e89b-12d3-a456-426614174000'
+                },
+                amount: {
+                    type: 'number',
+                    example: 1000.50
+                },
+                type: {
+                    type: 'string',
+                    enum: ['debit'],
+                    example: 'debit'
+                },
+                description: {
+                    type: 'string',
+                    example: 'Withdrawal to bank account'
+                },
+                status: {
+                    type: 'string',
+                    enum: ['success'],
+                    example: 'success'
+                },
+                createdAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2024-03-19T12:00:00Z'
+                }
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Bad Request - Insufficient balance or invalid amount'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing JWT token'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden - User does not have required role'
+    }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, create_withdrawal_dto_1.CreateWithdrawalDto]),
+    __metadata("design:returntype", Promise)
+], WalletController.prototype, "withdraw", null);
 exports.WalletController = WalletController = __decorate([
     (0, swagger_1.ApiTags)('Wallet'),
     (0, common_1.Controller)('wallet'),

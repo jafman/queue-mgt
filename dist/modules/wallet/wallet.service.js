@@ -261,6 +261,36 @@ let WalletService = class WalletService {
             exists: false
         };
     }
+    async withdraw(vendorId, createWithdrawalDto) {
+        const wallet = await this.getOrCreateWallet(vendorId, 'vendor');
+        if (wallet.balance < createWithdrawalDto.amount) {
+            throw new common_1.BadRequestException('Insufficient balance');
+        }
+        const transaction = this.transactionRepository.create({
+            amount: createWithdrawalDto.amount,
+            type: transaction_entity_1.TransactionType.DEBIT,
+            description: 'Withdrawal to bank account',
+            walletId: wallet.id,
+            status: transaction_entity_1.TransactionStatus.SUCCESS,
+        });
+        wallet.balance = Number(wallet.balance) - Number(createWithdrawalDto.amount);
+        const result = await this.transactionRepository.manager.transaction(async (manager) => {
+            const savedTransaction = await manager.save(transaction);
+            await manager.save(wallet);
+            return savedTransaction;
+        });
+        const updatedWallet = await this.walletRepository.findOne({
+            where: { id: wallet.id }
+        });
+        if (!updatedWallet) {
+            throw new Error('Failed to verify wallet update');
+        }
+        console.log('Withdrawal completed:', {
+            balance: updatedWallet.balance,
+            amount: createWithdrawalDto.amount
+        });
+        return result;
+    }
 };
 exports.WalletService = WalletService;
 exports.WalletService = WalletService = __decorate([

@@ -10,6 +10,7 @@ import { PaystackService } from './paystack.service';
 import { InitializeWalletFundingDto } from './dto/initialize-wallet-funding.dto';
 import { Transaction, TransactionType, TransactionStatus } from './entities/transaction.entity';
 import { CreateTransferDto } from './dto/create-transfer.dto';
+import { CreateWithdrawalDto } from './dto/create-withdrawal.dto';
 
 @ApiTags('Wallet')
 @Controller('wallet')
@@ -406,5 +407,66 @@ export class WalletController {
     @Param('username') username: string,
   ) {
     return this.walletService.validateUsername(username);
+  }
+
+  @Post('withdraw')
+  @Roles(Role.VENDOR)
+  @ApiOperation({ summary: 'Withdraw funds from wallet to bank account' })
+  @ApiResponse({
+    status: 201,
+    description: 'Withdrawal successful',
+    schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        },
+        amount: {
+          type: 'number',
+          example: 1000.50
+        },
+        type: {
+          type: 'string',
+          enum: ['debit'],
+          example: 'debit'
+        },
+        description: {
+          type: 'string',
+          example: 'Withdrawal to bank account'
+        },
+        status: {
+          type: 'string',
+          enum: ['success'],
+          example: 'success'
+        },
+        createdAt: {
+          type: 'string',
+          format: 'date-time',
+          example: '2024-03-19T12:00:00Z'
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Insufficient balance or invalid amount'
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing JWT token'
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User does not have required role'
+  })
+  async withdraw(
+    @Request() req,
+    @Body() createWithdrawalDto: CreateWithdrawalDto,
+  ) {
+    return this.walletService.withdraw(
+      req.user.id,
+      createWithdrawalDto,
+    );
   }
 } 

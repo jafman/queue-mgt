@@ -3,6 +3,7 @@ import { PaystackService } from './paystack.service';
 import { InitializeWalletFundingDto } from './dto/initialize-wallet-funding.dto';
 import { Transaction } from './entities/transaction.entity';
 import { CreateTransferDto } from './dto/create-transfer.dto';
+import { CreateWithdrawalDto } from './dto/create-withdrawal.dto';
 export declare class WalletController {
     private readonly walletService;
     private readonly paystackService;
@@ -30,4 +31,5 @@ export declare class WalletController {
         userType: "student" | "vendor" | null;
         exists: boolean;
     }>;
+    withdraw(req: any, createWithdrawalDto: CreateWithdrawalDto): Promise<Transaction>;
 }

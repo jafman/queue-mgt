@@ -8,6 +8,7 @@ import { AuthService } from '../../auth/services/auth.service';
 import { Student } from '../users/entities/student.entity';
 import { Vendor } from '../users/entities/vendor.entity';
 import { CreateTransferDto } from './dto/create-transfer.dto';
+import { CreateWithdrawalDto } from './dto/create-withdrawal.dto';
 export declare class WalletService {
     private walletRepository;
     private transactionRepository;
@@ -38,4 +39,5 @@ export declare class WalletService {
         userType: 'student' | 'vendor' | null;
         exists: boolean;
     }>;
+    withdraw(vendorId: string, createWithdrawalDto: CreateWithdrawalDto): Promise<Transaction>;
 }
