@@ -21,6 +21,7 @@ const vendor_entity_1 = require("../users/entities/vendor.entity");
 const auth_module_1 = require("../../auth/auth.module");
 const paystack_service_1 = require("./paystack.service");
 const verify_transaction_job_1 = require("./jobs/verify-transaction.job");
+const queue_module_1 = require("../queue/queue.module");
 let WalletModule = class WalletModule {
 };
 exports.WalletModule = WalletModule;
@@ -32,6 +33,7 @@ exports.WalletModule = WalletModule = __decorate([
             student_module_1.StudentModule,
             vendor_module_1.VendorModule,
             auth_module_1.AuthModule,
+            queue_module_1.QueueModule,
         ],
         controllers: [wallet_controller_1.WalletController],
         providers: [wallet_service_1.WalletService, paystack_service_1.PaystackService, verify_transaction_job_1.VerifyTransactionJob],

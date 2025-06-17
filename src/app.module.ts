@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { StatsModule } from './modules/stats/stats.module';
+import { QueueModule } from './modules/queue/queue.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { StatsModule } from './modules/stats/stats.module';
     AuthModule,
     WalletModule,
     StatsModule,
+    QueueModule,
   ],
   controllers: [AppController],
   providers: [AppService],

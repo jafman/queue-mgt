@@ -11,6 +11,7 @@ import { Student } from '../users/entities/student.entity';
 import { Vendor } from '../users/entities/vendor.entity';
 import { CreateTransferDto, RecipientType } from './dto/create-transfer.dto';
 import { CreateWithdrawalDto } from './dto/create-withdrawal.dto';
+import { QueueService } from '../queue/queue.service';
 
 @Injectable()
 export class WalletService {
@@ -26,6 +27,7 @@ export class WalletService {
     private studentService: StudentService,
     private vendorService: VendorService,
     private authService: AuthService,
+    private queueService: QueueService,
   ) {}
 
   async getOrCreateWallet(userId: string, userType: string): Promise<Wallet> {
@@ -286,6 +288,15 @@ export class WalletService {
       await manager.save(recipientWallet);
       return savedSenderTransaction;
     });
+
+    // If transfer is to a vendor, add student to vendor's queue
+    if (createTransferDto.recipientType === RecipientType.VENDOR) {
+      await this.queueService.addToQueue(
+        recipient.id,
+        senderId,
+        result.id
+      );
+    }
 
     // Verify balances after transfer
     const updatedSenderWallet = await this.walletRepository.findOne({

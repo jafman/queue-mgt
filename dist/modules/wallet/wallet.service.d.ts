@@ -9,6 +9,7 @@ import { Student } from '../users/entities/student.entity';
 import { Vendor } from '../users/entities/vendor.entity';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { CreateWithdrawalDto } from './dto/create-withdrawal.dto';
+import { QueueService } from '../queue/queue.service';
 export declare class WalletService {
     private walletRepository;
     private transactionRepository;
@@ -17,7 +18,8 @@ export declare class WalletService {
     private studentService;
     private vendorService;
     private authService;
-    constructor(walletRepository: Repository<Wallet>, transactionRepository: Repository<Transaction>, studentRepository: Repository<Student>, vendorRepository: Repository<Vendor>, studentService: StudentService, vendorService: VendorService, authService: AuthService);
+    private queueService;
+    constructor(walletRepository: Repository<Wallet>, transactionRepository: Repository<Transaction>, studentRepository: Repository<Student>, vendorRepository: Repository<Vendor>, studentService: StudentService, vendorService: VendorService, authService: AuthService, queueService: QueueService);
     getOrCreateWallet(userId: string, userType: string): Promise<Wallet>;
     getWalletBalance(userId: string, userType: string): Promise<{
         balance: number;

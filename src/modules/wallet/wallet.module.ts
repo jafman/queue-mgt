@@ -12,6 +12,7 @@ import { Vendor } from '../users/entities/vendor.entity';
 import { AuthModule } from '../../auth/auth.module';
 import { PaystackService } from './paystack.service';
 import { VerifyTransactionJob } from './jobs/verify-transaction.job';
+import { QueueModule } from '../queue/queue.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { VerifyTransactionJob } from './jobs/verify-transaction.job';
     StudentModule,
     VendorModule,
     AuthModule,
+    QueueModule,
   ],
   controllers: [WalletController],
   providers: [WalletService, PaystackService, VerifyTransactionJob],

@@ -24,8 +24,9 @@ const auth_service_1 = require("../../auth/services/auth.service");
 const student_entity_1 = require("../users/entities/student.entity");
 const vendor_entity_1 = require("../users/entities/vendor.entity");
 const create_transfer_dto_1 = require("./dto/create-transfer.dto");
+const queue_service_1 = require("../queue/queue.service");
 let WalletService = class WalletService {
-    constructor(walletRepository, transactionRepository, studentRepository, vendorRepository, studentService, vendorService, authService) {
+    constructor(walletRepository, transactionRepository, studentRepository, vendorRepository, studentService, vendorService, authService, queueService) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
         this.studentRepository = studentRepository;
@@ -33,6 +34,7 @@ let WalletService = class WalletService {
         this.studentService = studentService;
         this.vendorService = vendorService;
         this.authService = authService;
+        this.queueService = queueService;
     }
     async getOrCreateWallet(userId, userType) {
         let wallet = await this.walletRepository.findOne({
@@ -198,6 +200,9 @@ let WalletService = class WalletService {
             await manager.save(recipientWallet);
             return savedSenderTransaction;
         });
+        if (createTransferDto.recipientType === create_transfer_dto_1.RecipientType.VENDOR) {
+            await this.queueService.addToQueue(recipient.id, senderId, result.id);
+        }
         const updatedSenderWallet = await this.walletRepository.findOne({
             where: { id: senderWallet.id }
         });
@@ -285,6 +290,7 @@ exports.WalletService = WalletService = __decorate([
         typeorm_2.Repository,
         student_service_1.StudentService,
         vendor_service_1.VendorService,
-        auth_service_1.AuthService])
+        auth_service_1.AuthService,
+        queue_service_1.QueueService])
 ], WalletService);
 //# sourceMappingURL=wallet.service.js.map
