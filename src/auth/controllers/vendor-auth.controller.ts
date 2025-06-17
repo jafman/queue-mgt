@@ -65,7 +65,7 @@ export class VendorAuthController {
   })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto) {
-    const vendor = await this.vendorService.findByUsername(loginDto.username);
+    const vendor = await this.vendorService.findByUsernameOrEmail(loginDto.username);
     const validatedUser = await this.authService.validateUser(
       loginDto.username,
       loginDto.password,

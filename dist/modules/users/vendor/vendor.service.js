@@ -40,8 +40,7 @@ let VendorService = class VendorService {
         return crypto.randomBytes(4).toString('hex').toUpperCase();
     }
     async hashPassword(password) {
-        const salt = await bcrypt.genSalt();
-        return bcrypt.hash(password, salt);
+        return bcrypt.hash(password, 10);
     }
     async findByUsername(username) {
         return this.vendorRepository.findOne({ where: { username } });

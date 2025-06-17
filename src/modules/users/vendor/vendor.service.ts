@@ -21,8 +21,9 @@ export class VendorService {
   }
 
   private async hashPassword(password: string): Promise<string> {
-    const salt = await bcrypt.genSalt();
-    return bcrypt.hash(password, salt);
+    // const salt = await bcrypt.genSalt();
+    // return bcrypt.hash(password, salt);
+    return bcrypt.hash(password, 10);
   }
 
   async findByUsername(username: string): Promise<Vendor | null> {

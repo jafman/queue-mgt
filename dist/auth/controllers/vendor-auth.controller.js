@@ -24,7 +24,7 @@ let VendorAuthController = class VendorAuthController {
         this.vendorService = vendorService;
     }
     async login(loginDto) {
-        const vendor = await this.vendorService.findByUsername(loginDto.username);
+        const vendor = await this.vendorService.findByUsernameOrEmail(loginDto.username);
         const validatedUser = await this.authService.validateUser(loginDto.username, loginDto.password, vendor);
         return this.authService.login(validatedUser, 'vendor');
     }
