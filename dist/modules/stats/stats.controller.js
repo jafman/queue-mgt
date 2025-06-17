@@ -34,6 +34,9 @@ let StatsController = class StatsController {
     async getTransactionStats(page = 1, limit = 10) {
         return this.statsService.getTransactionStats(page, limit);
     }
+    async getOverview() {
+        return this.statsService.getOverview();
+    }
 };
 exports.StatsController = StatsController;
 __decorate([
@@ -201,6 +204,61 @@ __decorate([
     __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", Promise)
 ], StatsController.prototype, "getTransactionStats", null);
+__decorate([
+    (0, common_1.Get)('overview'),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Get system overview statistics' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Returns system overview statistics',
+        schema: {
+            type: 'object',
+            properties: {
+                totalTransactionsAmount: {
+                    type: 'number',
+                    example: 80000.75,
+                    description: 'Total amount of all transactions'
+                },
+                totalVendors: {
+                    type: 'number',
+                    example: 100,
+                    description: 'Total number of vendors'
+                },
+                totalStudents: {
+                    type: 'number',
+                    example: 500,
+                    description: 'Total number of students'
+                },
+                recentActivities: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' },
+                            amount: { type: 'number', example: 100.50 },
+                            type: { type: 'string', enum: ['credit', 'debit'] },
+                            description: { type: 'string' },
+                            status: { type: 'string', enum: ['success', 'pending', 'failed'] },
+                            createdAt: { type: 'string', format: 'date-time' }
+                        }
+                    },
+                    description: 'Last 10 transactions'
+                }
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing JWT token'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden - User does not have required role'
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], StatsController.prototype, "getOverview", null);
 exports.StatsController = StatsController = __decorate([
     (0, swagger_1.ApiTags)('Statistics'),
     (0, common_1.Controller)('stats'),

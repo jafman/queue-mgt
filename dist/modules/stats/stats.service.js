@@ -87,6 +87,25 @@ let StatsService = class StatsService {
             hasPreviousPage
         };
     }
+    async getOverview() {
+        const totalTransactionsAmount = await this.transactionRepository
+            .createQueryBuilder('transaction')
+            .select('SUM(transaction.amount)', 'total')
+            .getRawOne()
+            .then(result => Number(result.total) || 0);
+        const totalVendors = await this.vendorRepository.count();
+        const totalStudents = await this.studentRepository.count();
+        const recentActivities = await this.transactionRepository.find({
+            order: { createdAt: 'DESC' },
+            take: 10,
+        });
+        return {
+            totalTransactionsAmount,
+            totalVendors,
+            totalStudents,
+            recentActivities
+        };
+    }
 };
 exports.StatsService = StatsService;
 exports.StatsService = StatsService = __decorate([

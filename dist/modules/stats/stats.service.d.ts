@@ -31,4 +31,10 @@ export declare class StatsService {
         hasNextPage: boolean;
         hasPreviousPage: boolean;
     }>;
+    getOverview(): Promise<{
+        totalTransactionsAmount: number;
+        totalVendors: number;
+        totalStudents: number;
+        recentActivities: Transaction[];
+    }>;
 }

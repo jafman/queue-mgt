@@ -175,4 +175,58 @@ export class StatsController {
   ) {
     return this.statsService.getTransactionStats(page, limit);
   }
+
+  @Get('overview')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Get system overview statistics' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns system overview statistics',
+    schema: {
+      type: 'object',
+      properties: {
+        totalTransactionsAmount: {
+          type: 'number',
+          example: 80000.75,
+          description: 'Total amount of all transactions'
+        },
+        totalVendors: {
+          type: 'number',
+          example: 100,
+          description: 'Total number of vendors'
+        },
+        totalStudents: {
+          type: 'number',
+          example: 500,
+          description: 'Total number of students'
+        },
+        recentActivities: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' },
+              amount: { type: 'number', example: 100.50 },
+              type: { type: 'string', enum: ['credit', 'debit'] },
+              description: { type: 'string' },
+              status: { type: 'string', enum: ['success', 'pending', 'failed'] },
+              createdAt: { type: 'string', format: 'date-time' }
+            }
+          },
+          description: 'Last 10 transactions'
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing JWT token'
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User does not have required role'
+  })
+  async getOverview() {
+    return this.statsService.getOverview();
+  }
 } 

@@ -26,4 +26,10 @@ export declare class StatsController {
         hasNextPage: boolean;
         hasPreviousPage: boolean;
     }>;
+    getOverview(): Promise<{
+        totalTransactionsAmount: number;
+        totalVendors: number;
+        totalStudents: number;
+        recentActivities: import("../wallet/entities/transaction.entity").Transaction[];
+    }>;
 }
