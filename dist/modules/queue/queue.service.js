@@ -135,9 +135,7 @@ let QueueService = class QueueService {
         if (!queueEntry) {
             throw new common_1.NotFoundException('Student is not in your queue');
         }
-        queueEntry.status = queue_entity_1.QueueStatus.COMPLETED;
-        queueEntry.servedAt = new Date();
-        await this.queueRepository.save(queueEntry);
+        await this.queueRepository.remove(queueEntry);
         const nextInLine = await this.queueRepository.findOne({
             where: {
                 vendorId,

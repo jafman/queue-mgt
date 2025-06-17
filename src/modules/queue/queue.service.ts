@@ -157,10 +157,8 @@ export class QueueService {
       throw new NotFoundException('Student is not in your queue');
     }
 
-    // Mark the student as completed
-    queueEntry.status = QueueStatus.COMPLETED;
-    queueEntry.servedAt = new Date();
-    await this.queueRepository.save(queueEntry);
+    // Delete the queue entry
+    await this.queueRepository.remove(queueEntry);
 
     // Get next student in queue
     const nextInLine = await this.queueRepository.findOne({
