@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StatsController = void 0;
 const common_1 = require("@nestjs/common");
@@ -27,6 +30,9 @@ let StatsController = class StatsController {
     }
     async getStudentStats() {
         return this.statsService.getStudentStats();
+    }
+    async getTransactionStats(page = 1, limit = 10) {
+        return this.statsService.getTransactionStats(page, limit);
     }
 };
 exports.StatsController = StatsController;
@@ -115,6 +121,86 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], StatsController.prototype, "getStudentStats", null);
+__decorate([
+    (0, common_1.Get)('transactions'),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Get transaction statistics' }),
+    (0, swagger_1.ApiQuery)({
+        name: 'page',
+        required: false,
+        type: Number,
+        description: 'Page number (default: 1)',
+        example: 1
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'limit',
+        required: false,
+        type: Number,
+        description: 'Number of items per page (default: 10)',
+        example: 10
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Returns transaction statistics and paginated transactions',
+        schema: {
+            type: 'object',
+            properties: {
+                stats: {
+                    type: 'object',
+                    properties: {
+                        totalCreditAmount: {
+                            type: 'number',
+                            example: 50000.50,
+                            description: 'Total amount of credit transactions'
+                        },
+                        totalDebitAmount: {
+                            type: 'number',
+                            example: 30000.25,
+                            description: 'Total amount of debit transactions'
+                        },
+                        totalTransactionAmount: {
+                            type: 'number',
+                            example: 80000.75,
+                            description: 'Total amount of all transactions'
+                        }
+                    }
+                },
+                transactions: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' },
+                            amount: { type: 'number', example: 100.50 },
+                            type: { type: 'string', enum: ['credit', 'debit'] },
+                            description: { type: 'string' },
+                            status: { type: 'string', enum: ['success', 'pending', 'failed'] },
+                            createdAt: { type: 'string', format: 'date-time' }
+                        }
+                    }
+                },
+                total: { type: 'number', example: 50 },
+                currentPage: { type: 'number', example: 1 },
+                totalPages: { type: 'number', example: 5 },
+                hasNextPage: { type: 'boolean', example: true },
+                hasPreviousPage: { type: 'boolean', example: false }
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing JWT token'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden - User does not have required role'
+    }),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:returntype", Promise)
+], StatsController.prototype, "getTransactionStats", null);
 exports.StatsController = StatsController = __decorate([
     (0, swagger_1.ApiTags)('Statistics'),
     (0, common_1.Controller)('stats'),

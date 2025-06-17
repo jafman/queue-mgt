@@ -1,5 +1,5 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, UseGuards, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
@@ -94,5 +94,85 @@ export class StatsController {
   })
   async getStudentStats() {
     return this.statsService.getStudentStats();
+  }
+
+  @Get('transactions')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Get transaction statistics' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number (default: 1)',
+    example: 1
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of items per page (default: 10)',
+    example: 10
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns transaction statistics and paginated transactions',
+    schema: {
+      type: 'object',
+      properties: {
+        stats: {
+          type: 'object',
+          properties: {
+            totalCreditAmount: {
+              type: 'number',
+              example: 50000.50,
+              description: 'Total amount of credit transactions'
+            },
+            totalDebitAmount: {
+              type: 'number',
+              example: 30000.25,
+              description: 'Total amount of debit transactions'
+            },
+            totalTransactionAmount: {
+              type: 'number',
+              example: 80000.75,
+              description: 'Total amount of all transactions'
+            }
+          }
+        },
+        transactions: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' },
+              amount: { type: 'number', example: 100.50 },
+              type: { type: 'string', enum: ['credit', 'debit'] },
+              description: { type: 'string' },
+              status: { type: 'string', enum: ['success', 'pending', 'failed'] },
+              createdAt: { type: 'string', format: 'date-time' }
+            }
+          }
+        },
+        total: { type: 'number', example: 50 },
+        currentPage: { type: 'number', example: 1 },
+        totalPages: { type: 'number', example: 5 },
+        hasNextPage: { type: 'boolean', example: true },
+        hasPreviousPage: { type: 'boolean', example: false }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing JWT token'
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User does not have required role'
+  })
+  async getTransactionStats(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.statsService.getTransactionStats(page, limit);
   }
 } 

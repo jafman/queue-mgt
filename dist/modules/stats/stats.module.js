@@ -13,13 +13,14 @@ const stats_controller_1 = require("./stats.controller");
 const stats_service_1 = require("./stats.service");
 const vendor_entity_1 = require("../users/entities/vendor.entity");
 const student_entity_1 = require("../users/entities/student.entity");
+const transaction_entity_1 = require("../wallet/entities/transaction.entity");
 let StatsModule = class StatsModule {
 };
 exports.StatsModule = StatsModule;
 exports.StatsModule = StatsModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([vendor_entity_1.Vendor, student_entity_1.Student]),
+            typeorm_1.TypeOrmModule.forFeature([vendor_entity_1.Vendor, student_entity_1.Student, transaction_entity_1.Transaction]),
         ],
         controllers: [stats_controller_1.StatsController],
         providers: [stats_service_1.StatsService],

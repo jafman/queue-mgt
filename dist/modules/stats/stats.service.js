@@ -18,12 +18,15 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const vendor_entity_1 = require("../users/entities/vendor.entity");
 const student_entity_1 = require("../users/entities/student.entity");
+const transaction_entity_1 = require("../wallet/entities/transaction.entity");
 let StatsService = class StatsService {
     vendorRepository;
     studentRepository;
-    constructor(vendorRepository, studentRepository) {
+    transactionRepository;
+    constructor(vendorRepository, studentRepository, transactionRepository) {
         this.vendorRepository = vendorRepository;
         this.studentRepository = studentRepository;
+        this.transactionRepository = transactionRepository;
     }
     async getVendorStats() {
         const allVendors = await this.vendorRepository.count();
@@ -49,13 +52,50 @@ let StatsService = class StatsService {
             inactiveStudents
         };
     }
+    async getTransactionStats(page = 1, limit = 10) {
+        const totalCreditAmount = await this.transactionRepository
+            .createQueryBuilder('transaction')
+            .where('transaction.type = :type', { type: transaction_entity_1.TransactionType.CREDIT })
+            .select('SUM(transaction.amount)', 'total')
+            .getRawOne()
+            .then(result => Number(result.total) || 0);
+        const totalDebitAmount = await this.transactionRepository
+            .createQueryBuilder('transaction')
+            .where('transaction.type = :type', { type: transaction_entity_1.TransactionType.DEBIT })
+            .select('SUM(transaction.amount)', 'total')
+            .getRawOne()
+            .then(result => Number(result.total) || 0);
+        const [transactions, total] = await this.transactionRepository.findAndCount({
+            order: { createdAt: 'DESC' },
+            skip: (page - 1) * limit,
+            take: limit,
+        });
+        const totalPages = Math.ceil(total / limit);
+        const hasNextPage = page < totalPages;
+        const hasPreviousPage = page > 1;
+        return {
+            stats: {
+                totalCreditAmount,
+                totalDebitAmount,
+                totalTransactionAmount: totalCreditAmount + totalDebitAmount
+            },
+            transactions,
+            total,
+            currentPage: page,
+            totalPages,
+            hasNextPage,
+            hasPreviousPage
+        };
+    }
 };
 exports.StatsService = StatsService;
 exports.StatsService = StatsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(vendor_entity_1.Vendor)),
     __param(1, (0, typeorm_1.InjectRepository)(student_entity_1.Student)),
+    __param(2, (0, typeorm_1.InjectRepository)(transaction_entity_1.Transaction)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository])
 ], StatsService);
 //# sourceMappingURL=stats.service.js.map

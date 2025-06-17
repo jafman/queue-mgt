@@ -13,4 +13,17 @@ export declare class StatsController {
         activeStudents: number;
         inactiveStudents: number;
     }>;
+    getTransactionStats(page?: number, limit?: number): Promise<{
+        stats: {
+            totalCreditAmount: number;
+            totalDebitAmount: number;
+            totalTransactionAmount: number;
+        };
+        transactions: import("../wallet/entities/transaction.entity").Transaction[];
+        total: number;
+        currentPage: number;
+        totalPages: number;
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+    }>;
 }

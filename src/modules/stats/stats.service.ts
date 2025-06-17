@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Vendor } from '../users/entities/vendor.entity';
 import { Student } from '../users/entities/student.entity';
+import { Transaction, TransactionType } from '../wallet/entities/transaction.entity';
 
 @Injectable()
 export class StatsService {
@@ -11,6 +12,8 @@ export class StatsService {
     private vendorRepository: Repository<Vendor>,
     @InjectRepository(Student)
     private studentRepository: Repository<Student>,
+    @InjectRepository(Transaction)
+    private transactionRepository: Repository<Transaction>,
   ) {}
 
   async getVendorStats() {
@@ -50,6 +53,49 @@ export class StatsService {
       allStudents,
       activeStudents,
       inactiveStudents
+    };
+  }
+
+  async getTransactionStats(page: number = 1, limit: number = 10) {
+    // Get total credit amount
+    const totalCreditAmount = await this.transactionRepository
+      .createQueryBuilder('transaction')
+      .where('transaction.type = :type', { type: TransactionType.CREDIT })
+      .select('SUM(transaction.amount)', 'total')
+      .getRawOne()
+      .then(result => Number(result.total) || 0);
+
+    // Get total debit amount
+    const totalDebitAmount = await this.transactionRepository
+      .createQueryBuilder('transaction')
+      .where('transaction.type = :type', { type: TransactionType.DEBIT })
+      .select('SUM(transaction.amount)', 'total')
+      .getRawOne()
+      .then(result => Number(result.total) || 0);
+
+    // Get paginated transactions
+    const [transactions, total] = await this.transactionRepository.findAndCount({
+      order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const totalPages = Math.ceil(total / limit);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
+
+    return {
+      stats: {
+        totalCreditAmount,
+        totalDebitAmount,
+        totalTransactionAmount: totalCreditAmount + totalDebitAmount
+      },
+      transactions,
+      total,
+      currentPage: page,
+      totalPages,
+      hasNextPage,
+      hasPreviousPage
     };
   }
 } 
